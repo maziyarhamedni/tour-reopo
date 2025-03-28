@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  lastName         String
+  password         String
+  passwordConfrim  String
+  passwordChengeAt DateTime @updatedAt
+  role             Role
+  resetPassword    String   @unique
+  expiredTime      String
+  isActive         Boolean  @default(true)
+  tours            Tour[]   @relation("TourGuides") // relation to Tour model  
+  reviews          Review[] @relation("UserReviews")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  review    String
+  rating    Int
+  createdAt DateTime @default(now())
+  userId    String
+  tourId    String
+  user      User     @relation("UserReviews", fields: [userId], references: [id])
+  tour      Tour     @relation("TourReviews", fields: [tourId], references: [id])  
+}
+
+model Tour {
+  id              String         @id @default(uuid()) // Unique identifier  
+  name            String         @unique @db.VarChar(40) // Tour name  
+  reviews         Review[]        @relation("TourReviews")
+  slug            String? // Optional slug for URL  
+  duration        Int // Required duration  
+  maxGroupSize    Int // Required max group size  
+  difficulty      Difficulty // Enum for difficulty levels  
+  ratingsAverage  Float          @default(4.5) // Default average rating  
+  ratingsQuantity Int            @default(0) // Default ratings count  
+  price           Float // Required price  
+  priceDiscount   Float? // Optional price discount (nullable)  
+  summary         String         @db.Text // Required summary  
+  description     String?        @db.Text // Optional description  
+  imageCover      String // Required cover image  
+  images          String[] // Array of images  
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamp(6) // Created time  
+  startDates      DateTime[] // Array of start dates  
+  secretTour      Boolean        @default(false) // Flag for secret tours  
+  guides          User[]         @relation("TourGuides") // Relation to User model for tour guides  
+  startLocation   StartLocation? // Optional relation to StartLocation  
+  locations       Location[] // Array of locations  
+
+  // @@map("tours") // Maps the model to the "tours" table in database  
+}
+
+model StartLocation {
+  id          String  @id @default(uuid()) // Unique identifier for start location  
+  description String // Description of the start location  
+  type        String // Type of location (e.g., "Point")  
+  coordinates Float[] // Array of coordinates [longitude, latitude]  
+  address     String // Full address of the start location  
+  tourId      String  @unique // Foreign key to Tour (ensuring one start location per tour)  
+  tour        Tour    @relation(fields: [tourId], references: [id]) // Relation to Tour  
+}
+
+model Location {
+  id          String  @id @default(uuid())
+  tourId      String // Foreign key to connect with Tour   @unique @unique
+  type        String  @default("Point") @db.VarChar(5) // default to "Point"  
+  coordinates Float[] // array of numbers for coordinates  
+  address     String?
+  description String?
+  day         Int?
+  tour        Tour    @relation(fields: [tourId], references: [id])
+
+  @@map("locations") // maps the model to the "locations" table in the database  
+}
+
+enum Difficulty {
+  easy
+  medium
+  difficult
+}
+
+enum Role {
+  ADMIN
+  USER
+  TOURLEADER
+  GUIDE
+}
