@@ -94,7 +94,7 @@ class TourController {
   ); 
    
 
-  
+
   addTourGuides = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
