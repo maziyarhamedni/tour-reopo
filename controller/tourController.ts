@@ -94,7 +94,7 @@ class TourController {
   ); 
    
 // test commit 
-
+// test 2 commit
   addTourGuides = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
