@@ -63,7 +63,7 @@ class TourQuery {
     return newLocation;
   };
 
-  findTourById = async (id: string) => {
+  findTourById = async (id: string)    => {
     const tour = await this.model.tour.findUnique({
       where: {
         id: id,

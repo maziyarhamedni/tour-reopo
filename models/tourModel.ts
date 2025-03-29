@@ -4,7 +4,7 @@ class TourModel {
   tour;
   startLocation;
   location;
-
+   
   constructor() {
     this.tour = prisma.tour;
     this.startLocation = prisma.startLocation;
