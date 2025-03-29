@@ -2,7 +2,7 @@ import { tour } from '../models/model';
 import TourModel from '../models/tourModel';
 import catchAsync from '../utils/catchAsync';
 import { Tour } from './../utils/express';
-import { StartLocation } from './../utils/express';
+import { StartLocation, Location } from './../utils/express';
 
 class TourQuery {
   model;
@@ -35,35 +35,51 @@ class TourQuery {
     return newTour;
   };
 
-  createStartLocation = async (data: any) => {
-    const newStartLoc = await this.model.startLocation.create({
+  createStartLocation = async (data: StartLocation) => {
+    console.log(data.coordinates);
+    const newStartLoc = await this.model.tour.update({
+      where: { id: data.tourId }, // Specify the tour you want to update
       data: {
-        description: data.description,
-        type: data.type,
-        coordinates: data.coordinates,
-        tourId: data.tourId,
-        address: data.address,
+        startLocation: {
+          connectOrCreate: {
+            where: {
+              // Specify unique fields to find an existing location, if applicable
+              tourId: data.tourId,
+            },
+            create: {
+              // Create a new start location if it doesn't exist
+              description: data.description,
+              type: data.type,
+              coordinates: { set: data.coordinates },
+              address: data.address,
+            },
+          },
+        },
       },
     });
 
     return newStartLoc;
   };
 
-  createLocation = async (data: any) => {
-    const newLocation = await this.model.location.create({
+  createLocation = async (data: Location) => {
+    const newLocation = await this.model.tour.update({
+      where: { id: data.tourId },
       data: {
-        description: data.description,
-        type: data.type,
-        coordinates: data.coordinates,
-        tourId: data.tourId,
-        address: data.address,
-        day: data.day,
+        locations: {
+          create: {
+            day: data.day,
+            description: data.description,
+            address: data.address,
+            coordinates: { set: data.coordinates },
+            type: data.type,
+          },
+        },
       },
     });
     return newLocation;
   };
 
-  findTourById = async (id: string)    => {
+  findTourById = async (id: string) => {
     const tour = await this.model.tour.findUnique({
       where: {
         id: id,
