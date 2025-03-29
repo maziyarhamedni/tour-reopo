@@ -63,7 +63,7 @@ class TourQuery {
 
   createLocation = async (data: Location) => {
     const newLocation = await this.model.tour.update({
-      where: { id: data.tourId },
+      where: { id: data.tourId },  
       data: {
         locations: {
           create: {

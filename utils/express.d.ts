@@ -13,7 +13,7 @@ interface NewUser {
   passwordChengeAt: Date;
   role: Role;
   resetPassword: string;
-  expiredTime: string;
+  expiredTime: string; 
   isActive: boolean;
 }
 

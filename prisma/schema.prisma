@@ -75,7 +75,7 @@ model StartLocation {
   tourId      String  @unique // Foreign key to Tour (ensuring one start location per tour)  
   tour        Tour    @relation(fields: [tourId], references: [id]) // Relation to Tour  
 }
-
+ 
 model Location {
   id          String  @id @default(uuid())
   tourId      String // Foreign key to connect with Tour   @unique @unique
