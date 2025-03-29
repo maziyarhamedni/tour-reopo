@@ -62,7 +62,12 @@ class reviewController {
       data.userId = req.user.id;
       const newReview = await this.model.createReview(data);
       if (!newReview) {
-        return next(new AppError('review dont created', 404));
+        return next(
+          new AppError(
+            'review dont created maybe you shared your review previous time ',
+            404
+          )
+        );
       }
       this.sendResponse(201, 'tanks for commit your review', res, newReview);
     }

@@ -27,6 +27,18 @@ class ReviewQuery {
                     rating: data.rating,
                 },
             });
+            const aggregateData = await this.model.review.aggregate({
+                _avg: { rating: true },
+                where: {
+                    tourId: data.tourId,
+                },
+            });
+            await this.model.tour.update({
+                where: { id: data.tourId },
+                data: {
+                    ratingsAverage: aggregateData._avg.rating
+                }
+            });
             return review;
         };
         this.updateReview = async (id, data) => {

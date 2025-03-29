@@ -64,6 +64,11 @@ class TourController {
             }
             res.status(201).json(newLoc);
         });
+        // test commit 
+        // test 2 commit
+        // test 3
+        // test 4s
+        // ÷test
         this.addTourGuides = (0, catchAsync_1.default)(async (req, res, next) => {
             const id = req.params.id;
             const guides = req.body.guides;
