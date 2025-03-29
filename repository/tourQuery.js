@@ -29,26 +29,43 @@ class TourQuery {
             return newTour;
         };
         this.createStartLocation = async (data) => {
-            const newStartLoc = await this.model.startLocation.create({
+            console.log(data.coordinates);
+            const newStartLoc = await this.model.tour.update({
+                where: { id: data.tourId }, // Specify the tour you want to update
                 data: {
-                    description: data.description,
-                    type: data.type,
-                    coordinates: data.coordinates,
-                    tourId: data.tourId,
-                    address: data.address,
+                    startLocation: {
+                        connectOrCreate: {
+                            where: {
+                                // Specify unique fields to find an existing location, if applicable
+                                tourId: data.tourId,
+                            },
+                            create: {
+                                // Create a new start location if it doesn't exist
+                                description: data.description,
+                                type: data.type,
+                                coordinates: { set: data.coordinates },
+                                address: data.address,
+                            },
+                        },
+                    },
                 },
             });
             return newStartLoc;
         };
         this.createLocation = async (data) => {
-            const newLocation = await this.model.location.create({
+            const newLocation = await this.model.tour.update({
+                where: { id: data.tourId },
                 data: {
-                    description: data.description,
-                    type: data.type,
-                    coordinates: data.coordinates,
-                    tourId: data.tourId,
-                    address: data.address,
-                    day: data.day,
+                    locations: {
+                        create: {
+                            // Foreign key to connect with Tour   @unique @unique
+                            type: data.type,
+                            coordinates: data.coordinates, // array of numbers for coordinates
+                            address: data.address,
+                            description: data.description,
+                            day: data.day,
+                        },
+                    },
                 },
             });
             return newLocation;
