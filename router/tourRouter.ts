@@ -5,6 +5,9 @@ const tourRouter = express.Router();
 const controller = new TourController();
 const authcontrol = new authController();
 
+
+
+
 tourRouter
   .route('/')
   .get(controller.getAllTours)
