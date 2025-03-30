@@ -21,6 +21,13 @@ const handleValidationErrorDB = (err) => {
 const handleJWTError = () => new AppError_1.default('Invalid token. Please log in again!', 401);
 const handleJWTExpiredError = () => new AppError_1.default('Your token has expired! Please log in again.', 401);
 const sendErrorDev = (err, res) => {
+    if (err.code == 'P2002') {
+        res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            message: `you repeat same thing on model <<<${err.meta.modelName}>>>  on  <<<${err.meta.target.map((el) => el)}>>> filed`,
+        });
+    }
     res.status(err.statusCode).json({
         status: err.status,
         error: err,
@@ -60,8 +67,7 @@ module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     if (process.env.NODE_ENV === 'development') {
-        if (err.code == 'P2002')
-            sendPreventDuplicateError(err, res);
+        // if (err.code == 'P2002') sendPreventDuplicateError(err, res);
         sendErrorDev(err, res);
     }
     else if (process.env.NODE_ENV === 'production') {

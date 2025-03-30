@@ -28,6 +28,15 @@ const handleJWTExpiredError = () =>
   new AppError('Your token has expired! Please log in again.', 401);
 
 const sendErrorDev = (err: any, res: Response) => {
+  if (err.code == 'P2002') {
+    res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: `you repeat same thing on model <<<${
+        err.meta.modelName
+      }>>>  on  <<<${err.meta.target.map((el: any) => el)}>>> filed`,
+    });
+  }
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -39,7 +48,8 @@ const sendPreventDuplicateError = (err: any, res: Response) => {
   if (err.code == 'P2002') {
     res.status(500).json({
       status: err.status,
-      message: 'you repeat your mission again you just can doit one time sorry :( ',
+      message:
+        'you repeat your mission again you just can doit one time sorry :( ',
     });
   }
 };
@@ -71,7 +81,7 @@ export = (err: any, req: Request, res: Response, next: NextFunction) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    if (err.code == 'P2002') sendPreventDuplicateError(err, res);
+    // if (err.code == 'P2002') sendPreventDuplicateError(err, res);
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
