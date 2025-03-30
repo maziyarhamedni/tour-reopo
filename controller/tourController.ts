@@ -91,7 +91,7 @@ class TourController {
 
       res.status(201).json(newLoc);
     }
-  ); 
+  );           
    
 
   addTourGuides = catchAsync(

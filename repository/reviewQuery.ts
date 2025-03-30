@@ -1,6 +1,5 @@
 import ReviewModel from './../models/reviewModel';
 import { ReviewField } from '../utils/express';
-import { tour } from '../models/model';
 class ReviewQuery {
   model: ReviewModel;
 
