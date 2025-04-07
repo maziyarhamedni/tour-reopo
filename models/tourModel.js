@@ -8,6 +8,7 @@ class TourModel {
         this.tour = model_1.default.tour;
         this.startLocation = model_1.default.startLocation;
         this.location = model_1.default.location;
+        this.prisma = model_1.default;
     }
 }
 module.exports = TourModel;

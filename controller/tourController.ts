@@ -91,9 +91,35 @@ class TourController {
 
       res.status(201).json(newLoc);
     }
-  );           
-   
+  );
 
+  tourWhitn = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { distance, latlng, unit } = req.params;
+
+      
+      const [lat, lng] = latlng.split(',');
+      if (!lat || !lng) {
+        next(
+          new AppError(
+            'please provide latiutr and logitude in th format lat,len',
+            400
+          )
+        );
+      }
+
+      const disNum = Number(distance);
+      const newLat = Number(lat);
+      const newLng = Number(lng);
+      const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
+      const tours = await this.query.tourWhiten(radius, newLat, newLng);
+
+      res.status(200).json({
+        status: 'success',
+        tours
+      });
+    }
+  );
   addTourGuides = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
@@ -101,9 +127,9 @@ class TourController {
       const guide = await this.query.addTourGuide(id, guides);
 
       if (!guide) {
-        return next(new AppError('shit',404))
+        return next(new AppError('shit', 404));
       }
-      res.status(201).json(guide)
+      res.status(201).json(guide);
     }
   );
 }

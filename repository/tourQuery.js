@@ -94,7 +94,13 @@ class TourQuery {
             return tour;
         };
         this.getAllTour = async () => {
-            const tours = await this.model.tour.findMany();
+            const tours = await this.model.tour.findMany({
+                include: {
+                    startLocation: true,
+                    guides: true,
+                    locations: true
+                }
+            });
             return tours;
         };
         this.updateTour = async (id, data) => {
@@ -123,7 +129,41 @@ class TourQuery {
             });
             return guide;
         };
+        this.tourWhiten = async (radius, lat, lng) => {
+            // const toursWithinRadiuds = await this.model.startLocation.findMany({  
+            //   where: {  
+            //     // Using a raw filtering condition for geospatial query  
+            //     AND: [  
+            //       {  
+            //         // Use ST_DWithin to find locations within the radius  
+            //         coordinates: {  
+            //           has :area.prisma.$executeRaw`ST_DWithin(  
+            //             ST_MakePoint(${lng}, ${lat})::geography,  
+            //             ST_MakePoint(coordinates[0], coordinates[1])::geography,  
+            //             ${radius * 1000} 
+            //           )`  
+            //         }  
+            //       }  
+            //     ]  
+            //   },  
+            //   include: {  
+            //     tour: true, // Include associated tour data  
+            //   },  
+            // });  
+            const toursWithinRadius = await this.prisma.$queryRaw `  
+    SELECT sl.*, t.*  
+    FROM "StartLocation" sl  
+    JOIN "Tour" t ON sl."tourId" = t.id  
+    WHERE ST_DWithin(  
+      ST_MakePoint(${lng}, ${lat})::geography,  
+      ST_MakePoint(sl."coordinates"[0], sl."coordinates"[1])::geography,  
+      ${radius * 1000} 
+    );  
+  `;
+            return toursWithinRadius;
+        };
         this.model = new tourModel_1.default();
+        this.prisma = this.model.prisma;
     }
 }
 module.exports = TourQuery;

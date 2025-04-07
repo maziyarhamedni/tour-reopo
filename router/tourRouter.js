@@ -14,6 +14,9 @@ tourRouter
     .get(controller.getAllTours)
     .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.createTour);
 tourRouter
+    .route('/tours-within/:distance/center/:latlng/unit/:unit')
+    .get(controller.tourWhitn);
+tourRouter
     .route('/:id')
     .get(authcontrol.protect, controller.getTour)
     .patch(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.updateTour)

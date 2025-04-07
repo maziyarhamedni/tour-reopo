@@ -5,9 +5,6 @@ const tourRouter = express.Router();
 const controller = new TourController();
 const authcontrol = new authController();
 
-
-
-
 tourRouter
   .route('/')
   .get(controller.getAllTours)
@@ -16,6 +13,13 @@ tourRouter
     authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'),
     controller.createTour
   );
+
+
+tourRouter
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(controller.tourWhitn);
+
+
 
 tourRouter
   .route('/:id')
@@ -45,7 +49,7 @@ tourRouter
     controller.addLoc
   );
 
-  tourRouter
+tourRouter
   .route('/:id/addTourGuider')
   .post(
     authcontrol.protect,

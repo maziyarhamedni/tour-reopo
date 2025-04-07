@@ -64,6 +64,22 @@ class TourController {
             }
             res.status(201).json(newLoc);
         });
+        this.tourWhitn = (0, catchAsync_1.default)(async (req, res, next) => {
+            const { distance, latlng, unit } = req.params;
+            const [lat, lng] = latlng.split(',');
+            if (!lat || !lng) {
+                next(new AppError_1.default('please provide latiutr and logitude in th format lat,len', 400));
+            }
+            const disNum = Number(distance);
+            const newLat = Number(lat);
+            const newLng = Number(lng);
+            const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
+            const tours = await this.query.tourWhiten(radius, newLat, newLng);
+            res.status(200).json({
+                status: 'success',
+                tours
+            });
+        });
         this.addTourGuides = (0, catchAsync_1.default)(async (req, res, next) => {
             const id = req.params.id;
             const guides = req.body.guides;
