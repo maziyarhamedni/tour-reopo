@@ -25,6 +25,7 @@ model User {
   passwordChengeAt DateTime @updatedAt
   role             Role
   resetPassword    String   @unique
+  photo            String
   expiredTime      String
   isActive         Boolean  @default(true)
   tours            Tour[]   @relation("TourGuides") // relation to Tour model  
@@ -48,7 +49,7 @@ model Tour {
   id              String         @id @default(uuid()) // Unique identifier  
   name            String         @unique @db.VarChar(40) // Tour name  
   reviews         Review[]       @relation("TourReviews")
-  slug            String? // Optional slug for URL  
+  slug            String     @unique // Optional slug for URL  
   duration        Int // Required duration  
   maxGroupSize    Int // Required max group size  
   difficulty      Difficulty // Enum for difficulty levels  

@@ -9,5 +9,6 @@ const viewRouter = express_1.default.Router();
 const viewControl = new viewController_1.default;
 viewRouter.get('/', viewControl.getHomePage);
 viewRouter.get('/overview', viewControl.getOverview);
-viewRouter.get('/tour', viewControl.getTour);
+viewRouter.get('/tour/:slug', viewControl.getTour);
+viewRouter.get('/login', viewControl.getLoginform);
 exports.default = viewRouter;

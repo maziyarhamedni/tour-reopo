@@ -8,6 +8,7 @@ interface NewUser {
   name: string;
   email: string;
   lastName: string;
+  photo:string;
   password: string;
   passwordConfrim: string;
   passwordChengeAt: Date;
@@ -57,7 +58,7 @@ interface StartLocation {
 
 interface Tour {
   name: string;
-  slug: string?;
+  slug: string;
   duration: number;
   maxGroupSize: number;
   difficulty: Difficulty;

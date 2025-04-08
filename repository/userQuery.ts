@@ -14,11 +14,9 @@ class UserQuery {
   };
 
   CreateNewUser = async (userInfo: NewUser) => {
-    // console.log(userInfo,pass)
+    
     const pass = await this.hashPassword(userInfo.password);
-
     const date = Date.now().toString();
-    // console.log('kkkkkkkk>>>>>>>>>>>')
     const newUser = await this.model.user.create({
       data: {
         name: userInfo.name,
@@ -31,6 +29,7 @@ class UserQuery {
         role: Role.USER,
         expiredTime: '',
         isActive: true,
+        photo:userInfo.photo
       },
     });
 

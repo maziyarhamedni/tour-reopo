@@ -99,6 +99,22 @@ class ReviewQuery {
     return allReviews ? allReviews : false;
   };
 
+  getAllReviewByTourId = async(tourId:string)=>{
+
+    const reviews = await this.model.review.findMany({
+      where:{
+        tourId:tourId
+      },
+      include:{
+        user:true,
+        
+      }
+    })
+
+    return reviews;
+
+
+  }
   deleteReview = async (id: string) => {
     await this.model.review.delete({
       where: {

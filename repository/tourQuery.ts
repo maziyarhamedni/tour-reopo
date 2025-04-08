@@ -1,6 +1,4 @@
-import { startLocation, tour } from '../models/model';
 import TourModel from '../models/tourModel';
-import catchAsync from '../utils/catchAsync';
 import { Tour } from './../utils/express';
 import { StartLocation, Location } from './../utils/express';
 
@@ -105,6 +103,34 @@ class TourQuery {
 
     return tour;
   };
+  findTourBySlug = async(slug:string)=>{
+    const tour = await this.model.tour.findUnique({
+      where:{
+        slug:slug
+      },
+      include:{
+        startLocation:true,
+        guides:true,
+        locations:true,
+        reviews:{
+          
+          include:{
+            user:{
+              omit:{
+                password:true,
+                passwordChengeAt:true,
+                resetPassword:true,
+                passwordConfrim:true
+              }
+            }
+            
+          }
+        }
+      }
+    })
+   
+    return tour;
+  }
 
   getAllTour = async () => {
     const tours = await this.model.tour.findMany({
@@ -112,6 +138,7 @@ class TourQuery {
         startLocation:true,
         guides:true,
         locations:true
+        
       }
     });
     return tours;

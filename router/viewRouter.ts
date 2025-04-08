@@ -10,8 +10,9 @@ viewRouter.get(
 );
 
 viewRouter.get(
-  '/tour',viewControl.getTour
+  '/tour/:slug',viewControl.getTour
 );
+viewRouter.get('/login',viewControl.getLoginform)
 
 
 

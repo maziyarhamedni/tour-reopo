@@ -93,6 +93,31 @@ class TourQuery {
             });
             return tour;
         };
+        this.findTourBySlug = async (slug) => {
+            const tour = await this.model.tour.findUnique({
+                where: {
+                    slug: slug
+                },
+                include: {
+                    startLocation: true,
+                    guides: true,
+                    locations: true,
+                    reviews: {
+                        include: {
+                            user: {
+                                omit: {
+                                    password: true,
+                                    passwordChengeAt: true,
+                                    resetPassword: true,
+                                    passwordConfrim: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            return tour;
+        };
         this.getAllTour = async () => {
             const tours = await this.model.tour.findMany({
                 include: {

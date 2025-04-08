@@ -89,6 +89,17 @@ class ReviewQuery {
             });
             return allReviews ? allReviews : false;
         };
+        this.getAllReviewByTourId = async (tourId) => {
+            const reviews = await this.model.review.findMany({
+                where: {
+                    tourId: tourId
+                },
+                include: {
+                    user: true,
+                }
+            });
+            return reviews;
+        };
         this.deleteReview = async (id) => {
             await this.model.review.delete({
                 where: {
