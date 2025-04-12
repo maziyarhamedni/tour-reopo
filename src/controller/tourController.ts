@@ -58,7 +58,7 @@ class TourController {
       const id = req.params.id;
       if (!id) {
         return next(new AppError('please inter id of tour', 404));
-      }
+      }  
       res.status(204).send(`tour with id ${id}deleted `);
     }
   );
