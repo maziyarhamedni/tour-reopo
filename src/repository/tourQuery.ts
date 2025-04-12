@@ -15,7 +15,6 @@ class TourQuery {
     const newTour = await this.model.tour.create({
       data: {
         name: data.name,
-        slug: data.slug,
         duration: data.duration,
         maxGroupSize: data.maxGroupSize,
         difficulty: data.difficulty,
@@ -103,10 +102,10 @@ class TourQuery {
 
     return tour;
   };
-  findTourBySlug = async(slug:string)=>{
+  findTourByName = async(name:string)=>{
     const tour = await this.model.tour.findUnique({
       where:{
-        slug:slug
+        name:name
       },
       include:{
         startLocation:true,

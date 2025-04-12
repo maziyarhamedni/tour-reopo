@@ -62,7 +62,7 @@ interface StartLocation {
 
 interface Tour {
   name: string;
-  slug: string;
+  slug?: string;
   duration: number;
   maxGroupSize: number;
   difficulty: Difficulty;

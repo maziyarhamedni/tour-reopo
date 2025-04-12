@@ -38,7 +38,7 @@ class viewController {
             // }
         }));
         this.getTour = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.tourQuery.findTourBySlug(req.params.slug);
+            const tour = yield this.tourQuery.findTourByName(req.params.slug);
             const title = 'Over View page';
             // console.log(tour?.reviews)
             if (tour) {

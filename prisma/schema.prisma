@@ -49,7 +49,7 @@ model Tour {
   id              String         @id @default(uuid()) // Unique identifier  
   name            String         @unique @db.VarChar(40) // Tour name  
   reviews         Review[]       @relation("TourReviews")
-  slug            String     @unique // Optional slug for URL  
+  slug            String?     @unique // Optional slug for URL  
   duration        Int // Required duration  
   maxGroupSize    Int // Required max group size  
   difficulty      Difficulty // Enum for difficulty levels  

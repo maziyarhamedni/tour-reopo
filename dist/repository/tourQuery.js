@@ -102,10 +102,10 @@ class TourQuery {
             });
             return tour;
         });
-        this.findTourBySlug = (slug) => __awaiter(this, void 0, void 0, function* () {
+        this.findTourByName = (name) => __awaiter(this, void 0, void 0, function* () {
             const tour = yield this.model.tour.findUnique({
                 where: {
-                    slug: slug
+                    name: name
                 },
                 include: {
                     startLocation: true,

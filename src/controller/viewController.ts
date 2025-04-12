@@ -43,7 +43,7 @@ class viewController {
   );
   getTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const tour = await this.tourQuery.findTourBySlug(req.params.slug)!;
+      const tour = await this.tourQuery.findTourByName(req.params.slug)!;
       const title = 'Over View page';
       // console.log(tour?.reviews)
       if (tour) {
