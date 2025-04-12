@@ -5,12 +5,14 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
 }
 
 model User {
@@ -23,6 +25,7 @@ model User {
   passwordChengeAt DateTime @updatedAt
   role             Role
   resetPassword    String   @unique
+  photo            String
   expiredTime      String
   isActive         Boolean  @default(true)
   tours            Tour[]   @relation("TourGuides") // relation to Tour model  
@@ -37,14 +40,16 @@ model Review {
   userId    String
   tourId    String
   user      User     @relation("UserReviews", fields: [userId], references: [id])
-  tour      Tour     @relation("TourReviews", fields: [tourId], references: [id])  
+  tour      Tour     @relation("TourReviews", fields: [tourId], references: [id])
+
+  @@unique([userId, tourId])
 }
 
 model Tour {
   id              String         @id @default(uuid()) // Unique identifier  
   name            String         @unique @db.VarChar(40) // Tour name  
-  reviews         Review[]        @relation("TourReviews")
-  slug            String? // Optional slug for URL  
+  reviews         Review[]       @relation("TourReviews")
+  slug            String     @unique // Optional slug for URL  
   duration        Int // Required duration  
   maxGroupSize    Int // Required max group size  
   difficulty      Difficulty // Enum for difficulty levels  
