@@ -51,7 +51,7 @@ class TourController {
       console.log(id);
       res.json(req.body);
     }
-  );
+  );       
 
   deleteTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
