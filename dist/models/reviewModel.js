@@ -1,9 +1,14 @@
-import prisma from './model';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const model_1 = __importDefault(require("./model"));
 class ReviewModel {
     constructor() {
-        this.tour = prisma.tour;
-        this.review = prisma.review;
-        this.user = prisma.user;
+        this.tour = model_1.default.tour;
+        this.review = model_1.default.review;
+        this.user = model_1.default.user;
     }
 }
-export default ReviewModel;
+exports.default = ReviewModel;

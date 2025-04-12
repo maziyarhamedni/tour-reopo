@@ -1,9 +1,22 @@
-import catchAsync from '../utils/catchAsync';
-import AppError from '../utils/AppError';
-import ReviewQuery from '../repository/reviewQuery';
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
+const AppError_1 = __importDefault(require("../utils/AppError"));
+const reviewQuery_1 = __importDefault(require("../repository/reviewQuery"));
 class reviewController {
     constructor() {
-        this.model = new ReviewQuery();
+        this.model = new reviewQuery_1.default();
         this.setTourUserIds = (req, res, next) => {
             if (!req.body.tour)
                 req.body.tour = req.params.tourId;
@@ -17,52 +30,52 @@ class reviewController {
                 review: review,
             });
         };
-        this.deleteOne = catchAsync(async (req, res, next) => {
-            const review = await this.model.findReviewById(req.params.id);
+        this.deleteOne = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const review = yield this.model.findReviewById(req.params.id);
             if (!review ||
                 (req.user.role != 'ADMIN' && review.userId != req.user.id)) {
-                return next(new AppError('you cant delete other review', 404));
+                return next(new AppError_1.default('you cant delete other review', 404));
             }
-            await this.model.deleteReview(req.params.id);
+            yield this.model.deleteReview(req.params.id);
             this.sendResponse(204, 'review updated', res, 'reveiw is deleted');
-        });
-        this.updateOne = catchAsync(async (req, res, next) => {
+        }));
+        this.updateOne = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const data = req.body;
-            const review = await this.model.findReviewById(req.params.id);
+            const review = yield this.model.findReviewById(req.params.id);
             if (!review || review.userId != req.user.id) {
-                return next(new AppError('you cant chenge other user review', 404));
+                return next(new AppError_1.default('you cant chenge other user review', 404));
             }
-            await this.model.updateReview(req.params.id, data);
-            const updatedReview = await this.model.findReviewById(req.params.id);
+            yield this.model.updateReview(req.params.id, data);
+            const updatedReview = yield this.model.findReviewById(req.params.id);
             this.sendResponse(202, 'review updated', res, updatedReview);
-        });
-        this.createOne = catchAsync(async (req, res, next) => {
+        }));
+        this.createOne = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const data = req.body;
             data.tourId = req.params.tourId;
             data.userId = req.user.id;
-            const newReview = await this.model.createReview(data);
+            const newReview = yield this.model.createReview(data);
             if (!newReview) {
-                return next(new AppError('review dont created maybe you shared your review previous time ', 404));
+                return next(new AppError_1.default('review dont created maybe you shared your review previous time ', 404));
             }
             this.sendResponse(201, 'tanks for commit your review', res, newReview);
-        });
-        this.getOne = catchAsync(async (req, res, next) => {
-            const review = await this.model.findReviewById(req.params.id);
+        }));
+        this.getOne = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const review = yield this.model.findReviewById(req.params.id);
             if (!review)
-                return next(new AppError('we dont have review with this id \n id is worng ', 404));
+                return next(new AppError_1.default('we dont have review with this id \n id is worng ', 404));
             this.sendResponse(200, 'seccussful', res, review);
-        });
-        this.getAll = catchAsync(async (req, res, next) => {
+        }));
+        this.getAll = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const tourId = req.params.tourId;
             console.log(tourId);
-            const allReviews = await this.model.getAllReview(tourId);
+            const allReviews = yield this.model.getAllReview(tourId);
             if (!allReviews)
-                return next(new AppError('there arenot any review in database \n ', 404));
+                return next(new AppError_1.default('there arenot any review in database \n ', 404));
             this.sendResponse(200, 'seccussful', res, allReviews);
-        }
+        })
         // To allow for nested GET reviews on tour (hack)
         // SEND RESPONSE
         );
     }
 }
-export default reviewController;
+module.exports = reviewController;

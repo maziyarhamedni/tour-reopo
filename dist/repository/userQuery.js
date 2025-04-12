@@ -1,16 +1,30 @@
-import UserModel from './../models/userModel';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { Role } from '@prisma/client';
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const userModel_1 = __importDefault(require("./../models/userModel"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const crypto_1 = __importDefault(require("crypto"));
+const client_1 = require("@prisma/client");
 class UserQuery {
     constructor() {
-        this.hashPassword = async (input) => {
-            return await bcrypt.hash(input, 10);
-        };
-        this.CreateNewUser = async (userInfo) => {
-            const pass = await this.hashPassword(userInfo.password);
+        this.hashPassword = (input) => __awaiter(this, void 0, void 0, function* () {
+            return yield bcrypt_1.default.hash(input, 10);
+        });
+        this.CreateNewUser = (userInfo) => __awaiter(this, void 0, void 0, function* () {
+            const pass = yield this.hashPassword(userInfo.password);
             const date = Date.now().toString();
-            const newUser = await this.model.user.create({
+            const newUser = yield this.model.user.create({
                 data: {
                     name: userInfo.name,
                     email: userInfo.email,
@@ -19,55 +33,55 @@ class UserQuery {
                     passwordConfrim: 'ok',
                     passwordChengeAt: new Date(),
                     resetPassword: date + 'e',
-                    role: Role.USER,
+                    role: client_1.Role.USER,
                     expiredTime: '',
                     isActive: true,
                     photo: userInfo.photo
                 },
             });
             return newUser;
-        };
-        this.findUserByEmail = async (email) => {
-            const user = await this.model.user.findUnique({
+        });
+        this.findUserByEmail = (email) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.model.user.findUnique({
                 where: {
                     email: email,
                     isActive: true,
                 },
             });
             return user;
-        };
-        this.findUserById = async (id) => {
-            const user = await this.model.user.findUnique({
+        });
+        this.findUserById = (id) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.model.user.findUnique({
                 where: {
                     id: id,
                     isActive: true,
                 },
             });
             return user;
-        };
-        this.isPassChengeRecently = async (tokenTime, passChengeDate) => {
+        });
+        this.isPassChengeRecently = (tokenTime, passChengeDate) => __awaiter(this, void 0, void 0, function* () {
             const res = this.model.passwordChenged(tokenTime, passChengeDate);
             return res;
-        };
-        this.updateUser = async (userEmail, data) => {
-            await this.model.user.update({
+        });
+        this.updateUser = (userEmail, data) => __awaiter(this, void 0, void 0, function* () {
+            yield this.model.user.update({
                 where: {
                     email: userEmail,
                     isActive: true,
                 },
                 data,
             });
-        };
-        this.checkUserPassword = async (interedPass, userPass) => {
+        });
+        this.checkUserPassword = (interedPass, userPass) => __awaiter(this, void 0, void 0, function* () {
             const res = this.model.correctPassword(interedPass, userPass);
             return res;
-        };
-        this.findUserByRestToken = async (resetToken) => {
-            const token = crypto.createHash('sha256').update(resetToken).digest('hex');
+        });
+        this.findUserByRestToken = (resetToken) => __awaiter(this, void 0, void 0, function* () {
+            const token = crypto_1.default.createHash('sha256').update(resetToken).digest('hex');
             if (!token) {
                 return false;
             }
-            const user = await this.model.user.findUnique({
+            const user = yield this.model.user.findUnique({
                 where: {
                     resetPassword: token,
                     isActive: true,
@@ -77,24 +91,24 @@ class UserQuery {
                 return user;
             }
             return false;
-        };
-        this.createResetPasswordToken = async (email) => {
-            const user = await this.findUserByEmail(email);
+        });
+        this.createResetPasswordToken = (email) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.findUserByEmail(email);
             const date = (Date.now() + 10 * 60 * 1000).toString();
-            const resetToken = crypto.randomBytes(32).toString('hex');
+            const resetToken = crypto_1.default.randomBytes(32).toString('hex');
             if (user) {
-                user.resetPassword = crypto
+                user.resetPassword = crypto_1.default
                     .createHash('sha256')
                     .update(resetToken)
                     .digest('hex');
-                await this.updateUser(email, {
+                yield this.updateUser(email, {
                     resetPassword: user.resetPassword,
                     expiredTime: date,
                 });
                 return resetToken;
             }
-        };
-        this.model = new UserModel();
+        });
+        this.model = new userModel_1.default();
     }
 }
-export default UserQuery;
+exports.default = UserQuery;

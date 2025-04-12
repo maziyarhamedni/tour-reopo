@@ -1,9 +1,14 @@
-import express from 'express';
-import TourController from './../controller/tourController';
-import authController from './../controller/authController';
-const tourRouter = express.Router();
-const controller = new TourController();
-const authcontrol = new authController();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const tourController_1 = __importDefault(require("./../controller/tourController"));
+const authController_1 = __importDefault(require("./../controller/authController"));
+const tourRouter = express_1.default.Router();
+const controller = new tourController_1.default();
+const authcontrol = new authController_1.default();
 tourRouter
     .route('/')
     .get(controller.getAllTours)
@@ -25,4 +30,4 @@ tourRouter
 tourRouter
     .route('/:id/addTourGuider')
     .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN'), controller.addTourGuides);
-export default tourRouter;
+exports.default = tourRouter;

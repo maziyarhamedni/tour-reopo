@@ -1,9 +1,14 @@
-import express from 'express';
-import UserController from './../controller/userController.js';
-import authController from '../controller/authController';
-const userRouter = express.Router();
-const controller = new UserController();
-const authorize = new authController();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const userController_1 = __importDefault(require("../controller/userController"));
+const authController_1 = __importDefault(require("../controller/authController"));
+const userRouter = express_1.default.Router();
+const controller = new userController_1.default();
+const authorize = new authController_1.default();
 userRouter.post('/signup', authorize.signUp);
 userRouter.post('/login', authorize.logIn);
 userRouter.post('/forgotPassword', authorize.forgotPassword);
@@ -15,4 +20,4 @@ userRouter
     .get(controller.getUser)
     .patch(controller.updateUser)
     .delete(authorize.protect, authorize.authorizeAdmin('ADMIN'), authorize.deleteUser);
-export default userRouter;
+exports.default = userRouter;

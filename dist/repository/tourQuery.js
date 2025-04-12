@@ -1,9 +1,22 @@
-import TourModel from '../models/tourModel';
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const tourModel_1 = __importDefault(require("../models/tourModel"));
 class TourQuery {
     constructor() {
-        this.createTour = async (data) => {
+        this.createTour = (data) => __awaiter(this, void 0, void 0, function* () {
             // console.log(data);
-            const newTour = await this.model.tour.create({
+            const newTour = yield this.model.tour.create({
                 data: {
                     name: data.name,
                     slug: data.slug,
@@ -23,10 +36,10 @@ class TourQuery {
                 },
             });
             return newTour;
-        };
-        this.createStartLocation = async (data) => {
+        });
+        this.createStartLocation = (data) => __awaiter(this, void 0, void 0, function* () {
             console.log(data.coordinates);
-            const newStartLoc = await this.model.tour.update({
+            const newStartLoc = yield this.model.tour.update({
                 where: { id: data.tourId }, // Specify the tour you want to update
                 data: {
                     startLocation: {
@@ -47,9 +60,9 @@ class TourQuery {
                 },
             });
             return newStartLoc;
-        };
-        this.createLocation = async (data) => {
-            const newLocation = await this.model.tour.update({
+        });
+        this.createLocation = (data) => __awaiter(this, void 0, void 0, function* () {
+            const newLocation = yield this.model.tour.update({
                 where: { id: data.tourId },
                 data: {
                     locations: {
@@ -64,9 +77,9 @@ class TourQuery {
                 },
             });
             return newLocation;
-        };
-        this.findTourById = async (id) => {
-            const tour = await this.model.tour.findUnique({
+        });
+        this.findTourById = (id) => __awaiter(this, void 0, void 0, function* () {
+            const tour = yield this.model.tour.findUnique({
                 where: {
                     id: id,
                 },
@@ -88,9 +101,9 @@ class TourQuery {
                 },
             });
             return tour;
-        };
-        this.findTourBySlug = async (slug) => {
-            const tour = await this.model.tour.findUnique({
+        });
+        this.findTourBySlug = (slug) => __awaiter(this, void 0, void 0, function* () {
+            const tour = yield this.model.tour.findUnique({
                 where: {
                     slug: slug
                 },
@@ -113,9 +126,9 @@ class TourQuery {
                 }
             });
             return tour;
-        };
-        this.getAllTour = async () => {
-            const tours = await this.model.tour.findMany({
+        });
+        this.getAllTour = () => __awaiter(this, void 0, void 0, function* () {
+            const tours = yield this.model.tour.findMany({
                 include: {
                     startLocation: true,
                     guides: true,
@@ -123,22 +136,22 @@ class TourQuery {
                 }
             });
             return tours;
-        };
-        this.updateTour = async (id, data) => {
-            await this.model.tour.update({
+        });
+        this.updateTour = (id, data) => __awaiter(this, void 0, void 0, function* () {
+            yield this.model.tour.update({
                 where: { id: id },
                 data,
             });
-        };
-        this.deleteTour = async (id) => {
-            await this.model.tour.delete({
+        });
+        this.deleteTour = (id) => __awaiter(this, void 0, void 0, function* () {
+            yield this.model.tour.delete({
                 where: {
                     id: id,
                 },
             });
-        };
-        this.addTourGuide = async (tourId, userIds) => {
-            const guide = await this.model.tour.update({
+        });
+        this.addTourGuide = (tourId, userIds) => __awaiter(this, void 0, void 0, function* () {
+            const guide = yield this.model.tour.update({
                 where: {
                     id: tourId,
                 },
@@ -149,8 +162,8 @@ class TourQuery {
                 },
             });
             return guide;
-        };
-        this.tourWhiten = async (radius, lat, lng) => {
+        });
+        this.tourWhiten = (radius, lat, lng) => __awaiter(this, void 0, void 0, function* () {
             // const toursWithinRadiuds = await this.model.startLocation.findMany({  
             //   where: {  
             //     // Using a raw filtering condition for geospatial query  
@@ -171,7 +184,7 @@ class TourQuery {
             //     tour: true, // Include associated tour data  
             //   },  
             // });  
-            const toursWithinRadius = await this.prisma.$queryRaw `  
+            const toursWithinRadius = yield this.prisma.$queryRaw `  
     SELECT sl.*, t.*  
     FROM "StartLocation" sl  
     JOIN "Tour" t ON sl."tourId" = t.id  
@@ -182,9 +195,9 @@ class TourQuery {
     );  
   `;
             return toursWithinRadius;
-        };
-        this.model = new TourModel();
+        });
+        this.model = new tourModel_1.default();
         this.prisma = this.model.prisma;
     }
 }
-export default TourQuery;
+module.exports = TourQuery;
