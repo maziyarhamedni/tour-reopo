@@ -16,10 +16,10 @@ const viewRouter_1 = __importDefault(require("./router/viewRouter"));
 // import AppError from './utils/AppError';
 const app = (0, express_1.default)();
 app.set('view engine', 'pug');
-app.set('views', path_1.default.join(__dirname, 'views'));
+app.set('views', path_1.default.join(__dirname, '..', 'views'));
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
-app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+app.use(express_1.default.static(path_1.default.join(__dirname, '..', 'public')));
 app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {

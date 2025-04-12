@@ -15,6 +15,7 @@ class TourQuery {
     const newTour = await this.model.tour.create({
       data: {
         name: data.name,
+        // slug: data.slug,
         duration: data.duration,
         maxGroupSize: data.maxGroupSize,
         difficulty: data.difficulty,

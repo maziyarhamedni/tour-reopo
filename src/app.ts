@@ -13,11 +13,11 @@ import viewRouter from './router/viewRouter';
 
 const app = express();
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '..','views'));
 
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..','public')));
 
 app.use(helmet({  
   contentSecurityPolicy: {  
