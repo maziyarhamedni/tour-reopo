@@ -46,6 +46,8 @@ const limiter = rateLimit({
 //overview router
 
 app.use('/', viewRouter);
+app.use('/tour', viewRouter);
+app.use('/login', viewRouter);
 
 
 app.use('/api', limiter);

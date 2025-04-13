@@ -42,6 +42,8 @@ const limiter = (0, express_rate_limit_1.default)({
 });
 //overview router
 app.use('/', viewRouter_1.default);
+app.use('/tour', viewRouter_1.default);
+app.use('/login', viewRouter_1.default);
 app.use('/api', limiter);
 app.use('/api/v1/tours', tourRouter_1.default);
 app.use('/api/v1/users', userRouter_1.default);

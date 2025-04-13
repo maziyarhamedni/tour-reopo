@@ -78,6 +78,37 @@ class authController {
             }
             next();
         }));
+        this.isLoggedIn = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            // Check for the presence of the JWT in cookies  
+            if (req.cookies.jwt) {
+                try {
+                    // Decode the JWT  
+                    const decode = yield this.jwtVerifyPromisified(req.cookies.jwt, this.secret);
+                    // Find the user by ID  
+                    const user = yield this.userQurey.findUserById(decode.id);
+                    // If user does not exist, just pass to the next middleware  
+                    if (!user) {
+                        return next();
+                    }
+                    // Check if the user's password was changed recently  
+                    const passwordChangedRecently = yield this.userQurey.isPassChengeRecently(decode.iat, user.passwordChengeAt);
+                    // If password was changed recently, just pass to the next middleware  
+                    if (passwordChangedRecently) {
+                        return next();
+                    }
+                    // Store user information in response local variable  
+                    res.locals.user = user;
+                    return next(); // Call next() to pass control to the next middleware  
+                }
+                catch (err) {
+                    // Handle errors if the JWT verification fails or any other issue occurs  
+                    console.error('Error verifying JWT or finding user:', err);
+                    return next();
+                }
+            }
+            // If there is no JWT, simply call next() to proceed  
+            next();
+        }));
         // isAdmin
         this.forgotPassword = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const email = req.body.email;

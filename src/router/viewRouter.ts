@@ -1,18 +1,18 @@
 import express from 'express';
 import viewController from '../controller/viewController';
+import authController from '../controller/authController';
+
 const viewRouter = express.Router();
-
+const authorize = new authController()
 const viewControl = new viewController;
-viewRouter.get('/', viewControl.getHomePage);
+// viewRouter.use(authorize.isLoggedIn)
+
+viewRouter.get('/',authorize.isLoggedIn, viewControl.getOverview);
 
 viewRouter.get(
-  '/overview',viewControl.getOverview
+  '/tour/:slug',authorize.isLoggedIn,viewControl.getTour
 );
-
-viewRouter.get(
-  '/tour/:slug',viewControl.getTour
-);
-viewRouter.get('/login',viewControl.getLoginform)
+viewRouter.get('/login',authorize.isLoggedIn,viewControl.getLoginform)
 
 
 

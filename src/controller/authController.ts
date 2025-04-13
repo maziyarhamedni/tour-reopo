@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import catchAsync from '../utils/catchAsync';
 import UserQuery from './../repository/userQuery';
 import { NewUser } from './../utils/express';
-import { Role } from "@prisma/client"
+import { Role } from '@prisma/client';
 import sendEmail from './../utils/email';
 
 interface Payload {
@@ -108,42 +108,85 @@ class authController {
 
         if (authorizaton && authorizaton.startsWith('Bearer')) {
           token = authorizaton.split(' ')[1];
-        }else {
-          token = req.cookies.jwt
-          console.log(req.cookies.jwt)
+        } else {
+          token = req.cookies.jwt;
+          console.log(req.cookies.jwt);
         }
 
-          const decode: Payload = await this.jwtVerifyPromisified(
-            token,
-            this.secret
+        const decode: Payload = await this.jwtVerifyPromisified(
+          token,
+          this.secret
+        );
+
+        const user = await this.userQurey.findUserById(decode.id);
+        if (!decode.id || !user) {
+          return next(new AppError('user in not exists anymore ', 404));
+        }
+        const passwordChengeRecently =
+          await this.userQurey.isPassChengeRecently(
+            decode.iat,
+            user.passwordChengeAt!
           );
- 
 
-          const user = await this.userQurey.findUserById(decode.id);
-          if (!decode.id || !user) {
-            return next(new AppError('user in not exists anymore ', 404));
-          }
-          const passwordChengeRecently =
-            await this.userQurey.isPassChengeRecently(
-              decode.iat,
-              user.passwordChengeAt!
-            );
+        if (passwordChengeRecently) {
+          return next(
+            new AppError(
+              'user change password recently please login again ... ',
+              401
+            )
+          );
+        }
 
-          if (passwordChengeRecently) {
-            return next(
-              new AppError(
-                'user change password recently please login again ... ',
-                401
-              )
-            );
-          }
-
-          req.user = user;
+        req.user = user;
       }
 
       next();
     }
   );
+
+  isLoggedIn = catchAsync(  
+    async (req: Request, res: Response, next: NextFunction) => {  
+      // Check for the presence of the JWT in cookies  
+      if (req.cookies.jwt) {  
+        try {  
+          // Decode the JWT  
+          const decode: Payload = await this.jwtVerifyPromisified(  
+            req.cookies.jwt,  
+            this.secret  
+          );  
+  
+          // Find the user by ID  
+          const user = await this.userQurey.findUserById(decode.id);  
+  
+          // If user does not exist, just pass to the next middleware  
+          if (!user) {  
+            return next();  
+          }  
+  
+          // Check if the user's password was changed recently  
+          const passwordChangedRecently = await this.userQurey.isPassChengeRecently(  
+            decode.iat,  
+            user.passwordChengeAt!  
+          );  
+  
+          // If password was changed recently, just pass to the next middleware  
+          if (passwordChangedRecently) {  
+            return next();  
+          }  
+  
+          // Store user information in response local variable  
+          res.locals.user = user;  
+          return next(); // Call next() to pass control to the next middleware  
+        } catch (err) {  
+          // Handle errors if the JWT verification fails or any other issue occurs  
+          console.error('Error verifying JWT or finding user:', err);  
+          return next();  
+        }  
+      }  
+      // If there is no JWT, simply call next() to proceed  
+      next();  
+    }  
+  );  
 
   // isAdmin
   forgotPassword = catchAsync(
