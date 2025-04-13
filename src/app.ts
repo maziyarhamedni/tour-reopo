@@ -7,31 +7,34 @@ import helmet from 'helmet';
 import AppError from './utils/AppError';
 import reviewRouter from './router/reviewRouter';
 import errorHandler from './controller/errorHandler';
+import cookiePrser from 'cookie-parser'
 import path from 'path';
 import viewRouter from './router/viewRouter';
 // import AppError from './utils/AppError';
 
 const app = express();
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, '..','views'));
+app.set('views', path.join(__dirname, '..', 'views'));
 
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
-app.use(express.static(path.join(__dirname, '..','public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.use(helmet({  
-  contentSecurityPolicy: {  
-    directives: {  
-      defaultSrc: ["'self'"],  
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow the Axios CDN  
-      // Add other directives as necessary  
-    },  
-  },  
-}));  
-
-
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'], // Allow the Axios CDN
+        // Add other directives as necessary
+      },
+    },
+  })
+);
 
 app.use(express.json({ limit: '10kb' }));
+app.use(cookiePrser())
+app.use(express.urlencoded({extended:true,limit:'10kb'}))
 if (process.env.NODE_ENV == 'development') app.use(morgan('dev'));
 
 const limiter = rateLimit({
@@ -43,8 +46,7 @@ const limiter = rateLimit({
 //overview router
 
 app.use('/', viewRouter);
-app.use('/overview', viewRouter);
-app.use('/tour', viewRouter);
+
 
 app.use('/api', limiter);
 app.use('/api/v1/tours', tourRouter);
