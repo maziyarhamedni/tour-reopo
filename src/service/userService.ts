@@ -1,12 +1,15 @@
-import prisma from './model';
+import Repository from '../repository/repository';
 import bcrypt from 'bcrypt';
 // import { NextFunction } from 'express';
 
-class UserModel {
+
+
+const repository = new Repository();
+class UserService {
   user;
 
   constructor() {
-    this.user = prisma.user;
+    this.user = repository.user;
   }
 
   async passwordChenged(jwtIat: any, passChenge: Date): Promise<Boolean> {
@@ -21,4 +24,4 @@ class UserModel {
   }
 }
 
-export = UserModel;
+export = UserService;

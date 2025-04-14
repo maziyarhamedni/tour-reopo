@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const userModel_1 = __importDefault(require("./../models/userModel"));
+const repository_1 = __importDefault(require("./repository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
+const userService_1 = __importDefault(require("../service/userService"));
 class UserQuery {
     constructor() {
         this.hashPassword = (input) => __awaiter(this, void 0, void 0, function* () {
@@ -24,7 +25,7 @@ class UserQuery {
         this.CreateNewUser = (userInfo) => __awaiter(this, void 0, void 0, function* () {
             const pass = yield this.hashPassword(userInfo.password);
             const date = Date.now().toString();
-            const newUser = yield this.model.user.create({
+            const newUser = yield this.repository.user.create({
                 data: {
                     name: userInfo.name,
                     email: userInfo.email,
@@ -42,7 +43,7 @@ class UserQuery {
             return newUser;
         });
         this.findUserByEmail = (email) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.model.user.findUnique({
+            const user = yield this.repository.user.findUnique({
                 where: {
                     email: email,
                     isActive: true,
@@ -51,7 +52,7 @@ class UserQuery {
             return user;
         });
         this.findUserById = (id) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.model.user.findUnique({
+            const user = yield this.repository.user.findUnique({
                 where: {
                     id: id,
                     isActive: true,
@@ -60,11 +61,11 @@ class UserQuery {
             return user;
         });
         this.isPassChengeRecently = (tokenTime, passChengeDate) => __awaiter(this, void 0, void 0, function* () {
-            const res = this.model.passwordChenged(tokenTime, passChengeDate);
+            const res = this.service.passwordChenged(tokenTime, passChengeDate);
             return res;
         });
         this.updateUser = (userEmail, data) => __awaiter(this, void 0, void 0, function* () {
-            yield this.model.user.update({
+            yield this.repository.user.update({
                 where: {
                     email: userEmail,
                     isActive: true,
@@ -73,7 +74,7 @@ class UserQuery {
             });
         });
         this.checkUserPassword = (interedPass, userPass) => __awaiter(this, void 0, void 0, function* () {
-            const res = this.model.correctPassword(interedPass, userPass);
+            const res = this.service.correctPassword(interedPass, userPass);
             return res;
         });
         this.findUserByRestToken = (resetToken) => __awaiter(this, void 0, void 0, function* () {
@@ -81,7 +82,7 @@ class UserQuery {
             if (!token) {
                 return false;
             }
-            const user = yield this.model.user.findUnique({
+            const user = yield this.repository.user.findUnique({
                 where: {
                     resetPassword: token,
                     isActive: true,
@@ -108,7 +109,9 @@ class UserQuery {
                 return resetToken;
             }
         });
-        this.model = new userModel_1.default();
+        const repository = new repository_1.default();
+        this.service = new userService_1.default();
+        this.repository = repository.prisma;
     }
 }
 exports.default = UserQuery;

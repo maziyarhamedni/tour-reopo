@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import UserModel from './../models/userModel';
+// import UserModel from './../models/userModel';
+import Repository from '../repository/repository';
 
-const model = new UserModel();
+const model = new Repository();
 class UserController {
   async getAllUsers(req: Request, res: Response) {
     const users = await model.user.findMany({

@@ -1,18 +1,18 @@
-import TourModel from '../models/tourModel';
+import Repository from './repository';
 import { Tour } from './../utils/express';
 import { StartLocation, Location } from './../utils/express';
 
 class TourQuery {
-  model;
+  repository;
   prisma;
   constructor() {
-    this.model = new TourModel();
-    this.prisma = this.model.prisma
+    this.repository = new Repository();
+    this.prisma = this.repository.prisma
   }
 
   createTour = async (data: Tour) => {
     // console.log(data);
-    const newTour = await this.model.tour.create({
+    const newTour = await this.repository.tour.create({
       data: {
         name: data.name,
         // slug: data.slug,
@@ -36,7 +36,7 @@ class TourQuery {
 
   createStartLocation = async (data: StartLocation) => {
     console.log(data.coordinates);
-    const newStartLoc = await this.model.tour.update({
+    const newStartLoc = await this.repository.tour.update({
       where: { id: data.tourId }, // Specify the tour you want to update
       data: {
         startLocation: {
@@ -61,7 +61,7 @@ class TourQuery {
   };
 
   createLocation = async (data: Location) => {
-    const newLocation = await this.model.tour.update({
+    const newLocation = await this.repository.tour.update({
       where: { id: data.tourId },
       data: {
         locations: {
@@ -79,7 +79,7 @@ class TourQuery {
   };
 
   findTourById = async (id: string) => {
-    const tour = await this.model.tour.findUnique({
+    const tour = await this.repository.tour.findUnique({
       where: {
         id: id,
       },
@@ -104,7 +104,7 @@ class TourQuery {
     return tour;
   };
   findTourByName = async(name:string)=>{
-    const tour = await this.model.tour.findUnique({
+    const tour = await this.repository.tour.findUnique({
       where:{
         name:name
       },
@@ -133,7 +133,7 @@ class TourQuery {
   }
 
   getAllTour = async () => {
-    const tours = await this.model.tour.findMany({
+    const tours = await this.repository.tour.findMany({
       include:{
         startLocation:true,
         guides:true,
@@ -145,14 +145,16 @@ class TourQuery {
   };
 
   updateTour = async (id: string, data: {}) => {
-    await this.model.tour.update({
+    await this.repository.tour.update({
       where: { id: id },
       data,
     });
+    const updateTour = await this.findTourById(id)
+    return updateTour
   };
 
   deleteTour = async (id: string) => {
-    await this.model.tour.delete({
+    await this.repository.tour.delete({
       where: {
         id: id,
       },
@@ -160,7 +162,7 @@ class TourQuery {
   };
 
   addTourGuide = async (tourId: string, userIds: string[]) => {
-    const guide = await this.model.tour.update({
+    const guide = await this.repository.tour.update({
       where: {
         id: tourId,
       },
@@ -175,7 +177,7 @@ class TourQuery {
   };
    
   tourWhiten = async (radius: any, lat: any, lng: any) => {
-    // const toursWithinRadiuds = await this.model.startLocation.findMany({  
+    // const toursWithinRadiuds = await this.repository.startLocation.findMany({  
     //   where: {  
     //     // Using a raw filtering condition for geospatial query  
     //     AND: [  

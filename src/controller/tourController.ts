@@ -1,18 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import TourQuery from '../repository/tourQuery';
 import AppError from '../utils/AppError';
+import TourService from '../service/tourService';
 import catchAsync from '../utils/catchAsync';
-import { StartLocation } from '../utils/express';
 
 class TourController {
-  query: TourQuery;
+  service;
   constructor() {
-    this.query = new TourQuery();
+    this.service = new TourService();
   }
   getAllTours = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const tours = await this.query.getAllTour();
-
+      const tours = await this.service.getAllTours();
+      if (!tours) {
+        return next(new AppError('crush an api and cant get all tour', 404));
+      }
       res.status(200).json(tours);
     }
   );
@@ -20,21 +22,18 @@ class TourController {
   createTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const data = await req.body;
-      // console.log('>>>>>>>>>>>>>>>>>>');
-      const tour = await this.query.createTour(data);
+      const tour = await this.service.createTour(data);
       if (!tour) {
         return next(new AppError('cant make a tour to database', 403));
       }
-
       res.status(201).json(tour);
-      // next()
     }
   );
 
   getTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
-      const tour = await this.query.findTourById(id);
+      const tour = await this.service.getTour(id);
       if (!tour) {
         return next(new AppError('please inter id of tour', 404));
       }
@@ -45,20 +44,22 @@ class TourController {
   updateTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
-      if (!id) {
-        return next(new AppError('please inter id of tour', 404));
+      const data = req.body;
+      const updateTour = this.service.updateTour(id, data);
+
+      if (!updateTour) {
+        return next(new AppError('thers isnot tour whit this id', 404));
       }
-      console.log(id);
-      res.json(req.body);
+      res.status(200).json(updateTour);
     }
-  );       
+  );
 
   deleteTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
       if (!id) {
         return next(new AppError('please inter id of tour', 404));
-      }  
+      }
       res.status(204).send(`tour with id ${id}deleted `);
     }
   );
@@ -68,7 +69,7 @@ class TourController {
       const id = req.params.id;
       const data = req.body;
       data.tourId = id;
-      const newStartLoc = await this.query.createStartLocation(data)!;
+      const newStartLoc = await this.service.addStartLoc(id, data)!;
 
       if (!newStartLoc) {
         return next(new AppError('please inter start location', 404));
@@ -83,7 +84,7 @@ class TourController {
       const id = req.params.id;
       const data = req.body;
       data.tourId = id;
-      const newLoc = await this.query.createLocation(data)!;
+      const newLoc = await this.service.addLoc(id, data)!;
 
       if (!newLoc) {
         return next(new AppError('please inter start location', 404));
@@ -93,38 +94,37 @@ class TourController {
     }
   );
 
-  tourWhitn = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { distance, latlng, unit } = req.params;
+  // tourWhitn = catchAsync(
+  //   async (req: Request, res: Response, next: NextFunction) => {
+  //     const { distance, latlng, unit } = req.params;
 
-      
-      const [lat, lng] = latlng.split(',');
-      if (!lat || !lng) {
-        next(
-          new AppError(
-            'please provide latiutr and logitude in th format lat,len',
-            400
-          )
-        );
-      }
+  //     const [lat, lng] = latlng.split(',');
+  //     if (!lat || !lng) {
+  //       next(
+  //         new AppError(
+  //           'please provide latiutr and logitude in th format lat,len',
+  //           400
+  //         )
+  //       );
+  //     }
 
-      const disNum = Number(distance);
-      const newLat = Number(lat);
-      const newLng = Number(lng);
-      const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
-      const tours = await this.query.tourWhiten(radius, newLat, newLng);
+  //     const disNum = Number(distance);
+  //     const newLat = Number(lat);
+  //     const newLng = Number(lng);
+  //     const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
+  //     const tours = await this.query.tourWhiten(radius, newLat, newLng);
 
-      res.status(200).json({
-        status: 'success',
-        tours
-      });
-    }
-  );
+  //     res.status(200).json({
+  //       status: 'success',
+  //       tours
+  //     });
+  //   }
+  // );
   addTourGuides = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
       const guides = req.body.guides;
-      const guide = await this.query.addTourGuide(id, guides);
+      const guide = await this.service.addTourGuides(id, guides);
 
       if (!guide) {
         return next(new AppError('shit', 404));

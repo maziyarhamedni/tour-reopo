@@ -11,12 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const tourModel_1 = __importDefault(require("../models/tourModel"));
+const repository_1 = __importDefault(require("./repository"));
 class TourQuery {
     constructor() {
         this.createTour = (data) => __awaiter(this, void 0, void 0, function* () {
             // console.log(data);
-            const newTour = yield this.model.tour.create({
+            const newTour = yield this.repository.tour.create({
                 data: {
                     name: data.name,
                     // slug: data.slug,
@@ -39,7 +39,7 @@ class TourQuery {
         });
         this.createStartLocation = (data) => __awaiter(this, void 0, void 0, function* () {
             console.log(data.coordinates);
-            const newStartLoc = yield this.model.tour.update({
+            const newStartLoc = yield this.repository.tour.update({
                 where: { id: data.tourId }, // Specify the tour you want to update
                 data: {
                     startLocation: {
@@ -62,7 +62,7 @@ class TourQuery {
             return newStartLoc;
         });
         this.createLocation = (data) => __awaiter(this, void 0, void 0, function* () {
-            const newLocation = yield this.model.tour.update({
+            const newLocation = yield this.repository.tour.update({
                 where: { id: data.tourId },
                 data: {
                     locations: {
@@ -79,7 +79,7 @@ class TourQuery {
             return newLocation;
         });
         this.findTourById = (id) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.model.tour.findUnique({
+            const tour = yield this.repository.tour.findUnique({
                 where: {
                     id: id,
                 },
@@ -103,7 +103,7 @@ class TourQuery {
             return tour;
         });
         this.findTourByName = (name) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.model.tour.findUnique({
+            const tour = yield this.repository.tour.findUnique({
                 where: {
                     name: name
                 },
@@ -128,7 +128,7 @@ class TourQuery {
             return tour;
         });
         this.getAllTour = () => __awaiter(this, void 0, void 0, function* () {
-            const tours = yield this.model.tour.findMany({
+            const tours = yield this.repository.tour.findMany({
                 include: {
                     startLocation: true,
                     guides: true,
@@ -138,20 +138,22 @@ class TourQuery {
             return tours;
         });
         this.updateTour = (id, data) => __awaiter(this, void 0, void 0, function* () {
-            yield this.model.tour.update({
+            yield this.repository.tour.update({
                 where: { id: id },
                 data,
             });
+            const updateTour = yield this.findTourById(id);
+            return updateTour;
         });
         this.deleteTour = (id) => __awaiter(this, void 0, void 0, function* () {
-            yield this.model.tour.delete({
+            yield this.repository.tour.delete({
                 where: {
                     id: id,
                 },
             });
         });
         this.addTourGuide = (tourId, userIds) => __awaiter(this, void 0, void 0, function* () {
-            const guide = yield this.model.tour.update({
+            const guide = yield this.repository.tour.update({
                 where: {
                     id: tourId,
                 },
@@ -164,7 +166,7 @@ class TourQuery {
             return guide;
         });
         this.tourWhiten = (radius, lat, lng) => __awaiter(this, void 0, void 0, function* () {
-            // const toursWithinRadiuds = await this.model.startLocation.findMany({  
+            // const toursWithinRadiuds = await this.repository.startLocation.findMany({  
             //   where: {  
             //     // Using a raw filtering condition for geospatial query  
             //     AND: [  
@@ -196,8 +198,8 @@ class TourQuery {
   `;
             return toursWithinRadius;
         });
-        this.model = new tourModel_1.default();
-        this.prisma = this.model.prisma;
+        this.repository = new repository_1.default();
+        this.prisma = this.repository.prisma;
     }
 }
 module.exports = TourQuery;

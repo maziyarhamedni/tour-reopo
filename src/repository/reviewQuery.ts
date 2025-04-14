@@ -1,10 +1,10 @@
-import ReviewModel from './../models/reviewModel';
+import Repository from './repository';
 import { ReviewField } from '../utils/express';
 class ReviewQuery {
-  model: ReviewModel;
+  model: Repository;
 
   constructor() {
-    this.model = new ReviewModel();
+    this.model = new Repository();
   }
 
   findReviewById = async (id: string) => {
@@ -13,13 +13,9 @@ class ReviewQuery {
         id: id,
       },
     });
-
-    if (review) {
-      return review;
-    }
+    return review ? review : false;
   };
   createReview = async (data: ReviewField) => {
-    console.log(data);
     const review = await this.model.review.create({
       data: {
         review: data.review,
@@ -38,11 +34,11 @@ class ReviewQuery {
     });
 
     await this.model.tour.update({
-      where:{id:data.tourId},
-      data:{
-        ratingsAverage: aggregateData._avg.rating!
-      }
-    })
+      where: { id: data.tourId },
+      data: {
+        ratingsAverage: aggregateData._avg.rating!,
+      },
+    });
     return review;
   };
 
@@ -99,22 +95,18 @@ class ReviewQuery {
     return allReviews ? allReviews : false;
   };
 
-  getAllReviewByTourId = async(tourId:string)=>{
-
+  getAllReviewByTourId = async (tourId: string) => {
     const reviews = await this.model.review.findMany({
-      where:{
-        tourId:tourId
+      where: {
+        tourId: tourId,
       },
-      include:{
-        user:true,
-        
-      }
-    })
+      include: {
+        user: true,
+      },
+    });
 
     return reviews;
-
-
-  }
+  };
   deleteReview = async (id: string) => {
     await this.model.review.delete({
       where: {

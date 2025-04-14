@@ -15,9 +15,9 @@ tourRouter
   );
 
 
-tourRouter
-  .route('/tours-within/:distance/center/:latlng/unit/:unit')
-  .get(controller.tourWhitn);
+// tourRouter
+//   .route('/tours-within/:distance/center/:latlng/unit/:unit')
+//   .get(controller.tourWhitn);
 
 
 

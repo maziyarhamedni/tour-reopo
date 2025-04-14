@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const userModel_1 = __importDefault(require("./../models/userModel"));
-const model = new userModel_1.default();
+// import UserModel from './../models/userModel';
+const repository_1 = __importDefault(require("../repository/repository"));
+const model = new repository_1.default();
 class UserController {
     constructor() {
         this.deleteUser = (req, res) => {

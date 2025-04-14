@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const reviewModel_1 = __importDefault(require("./../models/reviewModel"));
+const repository_1 = __importDefault(require("./repository"));
 class ReviewQuery {
     constructor() {
         this.findReviewById = (id) => __awaiter(this, void 0, void 0, function* () {
@@ -21,12 +21,9 @@ class ReviewQuery {
                     id: id,
                 },
             });
-            if (review) {
-                return review;
-            }
+            return review ? review : false;
         });
         this.createReview = (data) => __awaiter(this, void 0, void 0, function* () {
-            console.log(data);
             const review = yield this.model.review.create({
                 data: {
                     review: data.review,
@@ -45,8 +42,8 @@ class ReviewQuery {
             yield this.model.tour.update({
                 where: { id: data.tourId },
                 data: {
-                    ratingsAverage: aggregateData._avg.rating
-                }
+                    ratingsAverage: aggregateData._avg.rating,
+                },
             });
             return review;
         });
@@ -101,11 +98,11 @@ class ReviewQuery {
         this.getAllReviewByTourId = (tourId) => __awaiter(this, void 0, void 0, function* () {
             const reviews = yield this.model.review.findMany({
                 where: {
-                    tourId: tourId
+                    tourId: tourId,
                 },
                 include: {
                     user: true,
-                }
+                },
             });
             return reviews;
         });
@@ -117,7 +114,7 @@ class ReviewQuery {
             });
             return true;
         });
-        this.model = new reviewModel_1.default();
+        this.model = new repository_1.default();
     }
 }
 exports.default = ReviewQuery;

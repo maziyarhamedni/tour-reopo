@@ -1,13 +1,17 @@
-import UserModel from './../models/userModel';
+import Repository from './repository';
 import bcrypt from 'bcrypt';
 import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
+import UserService from '../service/userService';
 class UserQuery {
-  model: UserModel;
+  repository;
+  service;
 
   constructor() {
-    this.model = new UserModel();
+    const repository =  new Repository();
+    this.service = new UserService()
+    this.repository = repository.prisma
   }
   hashPassword = async (input: string) => {
     return await bcrypt.hash(input, 10);
@@ -17,7 +21,7 @@ class UserQuery {
     
     const pass = await this.hashPassword(userInfo.password);
     const date = Date.now().toString();
-    const newUser = await this.model.user.create({
+    const newUser = await this.repository.user.create({
       data: {
         name: userInfo.name,
         email: userInfo.email,
@@ -37,7 +41,7 @@ class UserQuery {
   };
 
   findUserByEmail = async (email: string) => {
-    const user = await this.model.user.findUnique({
+    const user = await this.repository.user.findUnique({
       where: {
         email: email,
         isActive: true,
@@ -48,7 +52,7 @@ class UserQuery {
   };
 
   findUserById = async (id: any) => {
-    const user = await this.model.user.findUnique({
+    const user = await this.repository.user.findUnique({
       where: {
         id: id,
         isActive: true,
@@ -58,12 +62,12 @@ class UserQuery {
   };
 
   isPassChengeRecently = async (tokenTime: any, passChengeDate: Date) => {
-    const res = this.model.passwordChenged(tokenTime, passChengeDate);
+    const res = this.service.passwordChenged(tokenTime, passChengeDate);
     return res;
   };
 
   updateUser = async (userEmail: string, data: {}) => {
-    await this.model.user.update({
+    await this.repository.user.update({
       where: {
         email: userEmail,
         isActive: true,
@@ -73,7 +77,7 @@ class UserQuery {
   };
 
   checkUserPassword = async (interedPass: any, userPass: any) => {
-    const res = this.model.correctPassword(interedPass, userPass);
+    const res = this.service.correctPassword(interedPass, userPass);
     return res;
   };
 
@@ -84,7 +88,7 @@ class UserQuery {
       return false;
     }
 
-    const user = await this.model.user.findUnique({
+    const user = await this.repository.user.findUnique({
       where: {
         resetPassword: token,
         isActive: true,

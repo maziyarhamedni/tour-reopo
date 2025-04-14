@@ -11,12 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const model_1 = __importDefault(require("./model"));
+const repository_1 = __importDefault(require("../repository/repository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 // import { NextFunction } from 'express';
-class UserModel {
+const repository = new repository_1.default();
+class UserService {
     constructor() {
-        this.user = model_1.default.user;
+        this.user = repository.user;
     }
     passwordChenged(jwtIat, passChenge) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,4 +33,4 @@ class UserModel {
         });
     }
 }
-module.exports = UserModel;
+module.exports = UserService;

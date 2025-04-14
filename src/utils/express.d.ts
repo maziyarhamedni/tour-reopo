@@ -59,7 +59,10 @@ interface StartLocation {
   address: string; // Full address of the start location
   tourId: string;
 }
-
+interface Payload {
+  id: string;
+  iat: number;
+}
 interface Tour {
   name: string;
   slug?: string;

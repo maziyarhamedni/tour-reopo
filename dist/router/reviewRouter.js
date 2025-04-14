@@ -7,15 +7,20 @@ const reviewController_1 = __importDefault(require("./../controller/reviewContro
 const authController_1 = __importDefault(require("./../controller/authController"));
 const authorize = new authController_1.default();
 const reviewControlerObj = new reviewController_1.default();
-const reviewRouter = express_1.default.Router({ mergeParams: true });
+const reviewRouter = express_1.default.Router();
+//////
+////  i must be declare restapi again
+//////
+//////
+///////
 reviewRouter.use(authorize.protect);
 reviewRouter
     .route('/:tourId')
     .get(reviewControlerObj.getAll)
     .post(authorize.authorizeAdmin('USER'), reviewControlerObj.setTourUserIds, reviewControlerObj.createOne);
 reviewRouter
-    .route('/:id')
-    .get(reviewControlerObj.getOne)
+    .route('/s1/:id')
     .patch(authorize.authorizeAdmin('USER', 'ADMIN'), reviewControlerObj.updateOne)
+    .get(reviewControlerObj.getReview)
     .delete(authorize.authorizeAdmin('USER', 'ADMIN'), reviewControlerObj.deleteOne);
 module.exports = reviewRouter;

@@ -3,8 +3,13 @@ import reviewController from './../controller/reviewController';
 import authController from './../controller/authController';
 const authorize = new authController();
 const reviewControlerObj = new reviewController();
-const reviewRouter = express.Router({ mergeParams: true });
+const reviewRouter = express.Router();
 
+//////
+////  i must be declare restapi again
+//////
+//////
+///////
 reviewRouter.use(authorize.protect);
 
 reviewRouter
@@ -18,12 +23,12 @@ reviewRouter
   );
 
 reviewRouter
-  .route('/:id')
-  .get(reviewControlerObj.getOne)
+  .route('/s1/:id')
   .patch(
     authorize.authorizeAdmin('USER', 'ADMIN'),
     reviewControlerObj.updateOne
   )
+  .get(reviewControlerObj.getReview)
   .delete(
     authorize.authorizeAdmin('USER', 'ADMIN'),
     reviewControlerObj.deleteOne
