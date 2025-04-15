@@ -139,12 +139,15 @@ class authController {
         }));
         this.secret = process.env.JWT_SECRET;
         this.cookieExpire = parseInt(process.env.JWT_COOKIE_EXPIRSE_IN);
+        this.dayInMiliSecond = parseInt(process.env.DAY_IN_MILISECOND);
         this.service = new authService_1.default();
     }
     createJwtToken(user, statusCode, res) {
+        const { email, id, lastName, photo, name } = user;
+        const sendedUser = { email, id, lastName, photo, name };
         const token = this.service.jwtTokenCreator(user.id, this.secret);
         const cookieOption = {
-            expires: new Date(Date.now() + this.cookieExpire * 24 * 60 * 60 * 1000),
+            expires: new Date(Date.now() + this.cookieExpire * this.dayInMiliSecond),
             secure: false,
             httpOnly: true,
         };
@@ -152,17 +155,11 @@ class authController {
             cookieOption.secure = true;
         }
         res.cookie('jwt', token, cookieOption);
-        //  i am must be create a interface
-        ////
-        ///////////////
-        //////////
-        user.password = '';
-        user.passwordConfrim = '';
         res.status(statusCode).json({
             status: 'seccessful',
             token: token,
             data: {
-                user,
+                sendedUser
             },
         });
     }
