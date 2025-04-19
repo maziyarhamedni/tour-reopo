@@ -16,7 +16,6 @@ const repository_1 = __importDefault(require("./repository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
-const userService_1 = __importDefault(require("../service/userService"));
 class UserQuery {
     constructor() {
         this.hashPassword = (input) => __awaiter(this, void 0, void 0, function* () {
@@ -37,7 +36,7 @@ class UserQuery {
                     role: client_1.Role.USER,
                     expiredTime: '',
                     isActive: true,
-                    photo: userInfo.photo
+                    photo: userInfo.photo,
                 },
             });
             return newUser;
@@ -60,9 +59,14 @@ class UserQuery {
             });
             return user;
         });
-        this.isPassChengeRecently = (tokenTime, passChengeDate) => __awaiter(this, void 0, void 0, function* () {
-            const res = this.service.passwordChenged(tokenTime, passChengeDate);
-            return res;
+        this.getAllUser = () => __awaiter(this, void 0, void 0, function* () {
+            const allUser = yield this.repository.user.findMany({
+                where: {
+                    isActive: true
+                }
+            });
+            console.log(allUser);
+            return (allUser) ? allUser : false;
         });
         this.updateUser = (userEmail, data) => __awaiter(this, void 0, void 0, function* () {
             yield this.repository.user.update({
@@ -72,10 +76,6 @@ class UserQuery {
                 },
                 data,
             });
-        });
-        this.checkUserPassword = (interedPass, userPass) => __awaiter(this, void 0, void 0, function* () {
-            const res = this.service.correctPassword(interedPass, userPass);
-            return res;
         });
         this.findUserByRestToken = (resetToken) => __awaiter(this, void 0, void 0, function* () {
             const token = crypto_1.default.createHash('sha256').update(resetToken).digest('hex');
@@ -110,7 +110,6 @@ class UserQuery {
             }
         });
         const repository = new repository_1.default();
-        this.service = new userService_1.default();
         this.repository = repository.prisma;
     }
 }

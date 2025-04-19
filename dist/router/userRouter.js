@@ -4,20 +4,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const userController_1 = __importDefault(require("../controller/userController"));
 const authController_1 = __importDefault(require("../controller/authController"));
 const userRouter = express_1.default.Router();
-const controller = new userController_1.default();
 const authorize = new authController_1.default();
 userRouter.post('/signup', authorize.signUp);
 userRouter.post('/login', authorize.logIn);
 userRouter.post('/forgotPassword', authorize.forgotPassword);
 userRouter.patch('/updatepassword', authorize.protect, authorize.updatePassword);
 userRouter.patch('/resetPassword/:token', authorize.resetPassword);
-userRouter.route('/').get(controller.getAllUsers);
+userRouter.use(authorize.protect);
+userRouter
+    .route('/')
+    .get(authorize.authorizeAdmin('ADMIN'), authorize.getAllUsers);
+userRouter.use(authorize.authorizeAdmin('ADMIN', 'USER'));
 userRouter
     .route('/:id')
-    .get(controller.getUser)
-    .patch(controller.updateUser)
-    .delete(authorize.protect, authorize.authorizeAdmin('ADMIN'), authorize.deleteUser);
+    .get(authorize.getUser)
+    .patch(authorize.updateUser)
+    .delete(authorize.deleteUser);
 exports.default = userRouter;

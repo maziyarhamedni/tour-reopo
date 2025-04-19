@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const userQuery_1 = __importDefault(require("../repository/userQuery"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const email_1 = __importDefault(require("./../utils/email"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 class authService {
     constructor() {
         this.sendResetTokenToEmail = (emailOption) => __awaiter(this, void 0, void 0, function* () {
@@ -32,8 +33,7 @@ class authService {
         });
         this.checkLogIn = (email, password) => __awaiter(this, void 0, void 0, function* () {
             const user = yield this.userQuery.findUserByEmail(email);
-            if (!user ||
-                !(yield this.userQuery.checkUserPassword(password, user.password))) {
+            if (!user || !(yield this.checkUserPassword(password, user.password))) {
                 return false;
             }
             return user;
@@ -63,7 +63,7 @@ class authService {
             const user = yield this.userQuery.findUserById(id);
             if (!user)
                 return false;
-            const passwordChengeRecently = yield this.userQuery.isPassChengeRecently(iat, user.passwordChengeAt);
+            const passwordChengeRecently = yield this.isPassChengeRecently(iat, user.passwordChengeAt);
             if (passwordChengeRecently)
                 return false;
             return user;
@@ -80,9 +80,13 @@ class authService {
             });
             return user;
         });
+        this.passwordChenged = (jwtIat, passChenge) => __awaiter(this, void 0, void 0, function* () {
+            const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
+            return passChengeAt > jwtIat;
+        });
         this.updatePasswordServiced = (id, oldPassword, newPassword) => __awaiter(this, void 0, void 0, function* () {
             const user = yield this.userQuery.findUserById(id);
-            const result = yield this.userQuery.checkUserPassword(oldPassword, user === null || user === void 0 ? void 0 : user.password);
+            const result = yield this.checkUserPassword(oldPassword, user === null || user === void 0 ? void 0 : user.password);
             if (!user || !result)
                 return false;
             const pass = yield this.userQuery.hashPassword(newPassword);
@@ -101,6 +105,27 @@ class authService {
                 return false;
             }
         });
+        this.isPassChengeRecently = (tokenTime, passChengeDate) => __awaiter(this, void 0, void 0, function* () {
+            const res = this.passwordChenged(tokenTime, passChengeDate);
+            return res;
+        });
+        this.checkUserPassword = (interedPass, userPass) => __awaiter(this, void 0, void 0, function* () {
+            const res = this.correctPassword(interedPass, userPass);
+            return res;
+        });
+        this.getUser = (id, user) => __awaiter(this, void 0, void 0, function* () {
+            const getUser = yield this.userQuery.findUserById(id);
+            if (getUser) {
+                if (user.role == 'ADMIN' || getUser.id == user.id) {
+                    return getUser;
+                }
+                return false;
+            }
+        });
+        this.getAllUser = () => __awaiter(this, void 0, void 0, function* () {
+            const users = yield this.userQuery.getAllUser();
+            return users ? users : false;
+        });
         this.deleteUserService = (id) => __awaiter(this, void 0, void 0, function* () {
             const deletedUser = yield this.userQuery.findUserById(id);
             if (deletedUser) {
@@ -115,6 +140,13 @@ class authService {
     }
     jwtTokenCreator(id, secret) {
         return jsonwebtoken_1.default.sign({ id: id }, secret);
+    }
+    correctPassword(password, hashedPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (hashedPassword) {
+                return yield bcrypt_1.default.compare(password, hashedPassword);
+            }
+        });
     }
 }
 exports.default = authService;

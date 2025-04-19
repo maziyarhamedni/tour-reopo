@@ -3,22 +3,19 @@ import bcrypt from 'bcrypt';
 import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
-import UserService from '../service/userService';
+
 class UserQuery {
   repository;
-  service;
 
   constructor() {
-    const repository =  new Repository();
-    this.service = new UserService()
-    this.repository = repository.prisma
+    const repository = new Repository();
+    this.repository = repository.prisma;
   }
   hashPassword = async (input: string) => {
     return await bcrypt.hash(input, 10);
   };
 
   CreateNewUser = async (userInfo: NewUser) => {
-    
     const pass = await this.hashPassword(userInfo.password);
     const date = Date.now().toString();
     const newUser = await this.repository.user.create({
@@ -33,7 +30,7 @@ class UserQuery {
         role: Role.USER,
         expiredTime: '',
         isActive: true,
-        photo:userInfo.photo
+        photo: userInfo.photo,
       },
     });
 
@@ -61,11 +58,16 @@ class UserQuery {
     return user;
   };
 
-  isPassChengeRecently = async (tokenTime: any, passChengeDate: Date) => {
-    const res = this.service.passwordChenged(tokenTime, passChengeDate);
-    return res;
-  };
+  getAllUser = async () => {
+    const allUser = await this.repository.user.findMany({
+      where:{
+        isActive:true
+      }
+    })
 
+    console.log(allUser)
+    return (allUser) ? allUser : false;
+  };
   updateUser = async (userEmail: string, data: {}) => {
     await this.repository.user.update({
       where: {
@@ -74,11 +76,6 @@ class UserQuery {
       },
       data,
     });
-  };
-
-  checkUserPassword = async (interedPass: any, userPass: any) => {
-    const res = this.service.correctPassword(interedPass, userPass);
-    return res;
   };
 
   findUserByRestToken = async (resetToken: string) => {

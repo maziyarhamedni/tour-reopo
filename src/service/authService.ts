@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { NewUser } from '../utils/express';
 import sendEmail from './../utils/email';
 import { EmailOption } from '../utils/express';
+import bcrypt from 'bcrypt';
 class authService {
   userQuery;
 
@@ -30,10 +31,7 @@ class authService {
 
   checkLogIn = async (email: string, password: string) => {
     const user = await this.userQuery.findUserByEmail(email);
-    if (
-      !user ||
-      !(await this.userQuery.checkUserPassword(password, user.password))
-    ) {
+    if (!user || !(await this.checkUserPassword(password, user.password))) {
       return false;
     }
     return user;
@@ -65,7 +63,7 @@ class authService {
     const user = await this.userQuery.findUserById(id);
 
     if (!user) return false;
-    const passwordChengeRecently = await this.userQuery.isPassChengeRecently(
+    const passwordChengeRecently = await this.isPassChengeRecently(
       iat,
       user.passwordChengeAt!
     );
@@ -87,7 +85,16 @@ class authService {
 
     return user;
   };
+  passwordChenged = async (jwtIat: any, passChenge: Date): Promise<Boolean> => {
+    const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
+    return passChengeAt > jwtIat;
+  };
 
+  async correctPassword(password: string, hashedPassword: string | null) {
+    if (hashedPassword) {
+      return await bcrypt.compare(password, hashedPassword);
+    }
+  }
   updatePasswordServiced = async (
     id: string,
     oldPassword: string,
@@ -95,10 +102,7 @@ class authService {
   ) => {
     const user = await this.userQuery.findUserById(id)!;
 
-    const result = await this.userQuery.checkUserPassword(
-      oldPassword,
-      user?.password
-    );
+    const result = await this.checkUserPassword(oldPassword, user?.password);
 
     if (!user || !result) return false;
     const pass = await this.userQuery.hashPassword(newPassword);
@@ -119,7 +123,32 @@ class authService {
     }
   };
 
-  deleteUserService = async(id:string)=>{
+
+  isPassChengeRecently = async (tokenTime: any, passChengeDate: Date) => {
+    const res = this.passwordChenged(tokenTime, passChengeDate);
+    return res;
+  };
+
+  checkUserPassword = async (interedPass: any, userPass: any) => {
+    const res = this.correctPassword(interedPass, userPass);
+    return res;
+  };
+
+  getUser = async (id: string, user: NewUser) => {
+    const getUser = await this.userQuery.findUserById(id);
+    if (getUser) {
+      if (user.role == 'ADMIN' || getUser.id == user.id) {
+        return getUser;
+      }
+      return false;
+    }
+  };
+
+  getAllUser = async () => {
+    const users = await this.userQuery.getAllUser();
+    return users ? users : false;
+  };
+  deleteUserService = async (id: string) => {
     const deletedUser = await this.userQuery.findUserById(id);
     if (deletedUser) {
       await this.userQuery.updateUser(deletedUser.email, {
@@ -127,8 +156,8 @@ class authService {
       });
       return deletedUser;
     }
-   return false
-  }
+    return false;
+  };
 }
 
 export default authService;

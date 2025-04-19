@@ -17,6 +17,15 @@ const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const authService_1 = __importDefault(require("../service/authService"));
 class authController {
     constructor() {
+        this.snedResponse = (statusCode, data, res) => {
+            const user = this.setUserInfoSafe(data);
+            res.status(statusCode).json(user);
+        };
+        this.setUserInfoSafe = (user) => {
+            const { email, id, lastName, photo, name, role } = user;
+            const sendedUser = { email, id, lastName, photo, name, role };
+            return sendedUser;
+        };
         this.signUp = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const data = req.body;
             const result = yield this.service.checkSignUp(data);
@@ -137,14 +146,34 @@ class authController {
             }
             this.createJwtToken(isDeleteUser, 204, res);
         }));
+        this.getAllUsers = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const users = yield this.service.getAllUser();
+            if (users) {
+                res.status(200).json({
+                    message: 'seccuseful',
+                    data: users,
+                });
+            }
+        }));
+        this.getUser = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.service.getUser(req.params.id, req.user);
+            if (!user) {
+                return next(new AppError_1.default('cant get users', 404));
+            }
+            this.snedResponse(200, user, res);
+        }));
+        this.updateUser = (0, catchAsync_1.default)((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const id = req.params.id;
+            console.log(id);
+            res.json(req.body);
+        }));
         this.secret = process.env.JWT_SECRET;
         this.cookieExpire = parseInt(process.env.JWT_COOKIE_EXPIRSE_IN);
         this.dayInMiliSecond = parseInt(process.env.DAY_IN_MILISECOND);
         this.service = new authService_1.default();
     }
     createJwtToken(user, statusCode, res) {
-        const { email, id, lastName, photo, name } = user;
-        const sendedUser = { email, id, lastName, photo, name };
+        const sendedUser = this.setUserInfoSafe(user);
         const token = this.service.jwtTokenCreator(user.id, this.secret);
         const cookieOption = {
             expires: new Date(Date.now() + this.cookieExpire * this.dayInMiliSecond),
@@ -159,7 +188,7 @@ class authController {
             status: 'seccessful',
             token: token,
             data: {
-                sendedUser
+                sendedUser,
             },
         });
     }

@@ -1,7 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import AppError from '../utils/AppError';
 import catchAsync from '../utils/catchAsync';
-import { EmailOption, NewUser, Payload } from './../utils/express';
+import {
+  EmailOption,
+  NewUser,
+  Payload,
+  UserSafeInfo,
+} from './../utils/express';
 import authService from '../service/authService';
 
 class authController {
@@ -17,16 +22,26 @@ class authController {
     this.service = new authService();
   }
 
-  createJwtToken(user: NewUser, statusCode: number, res: Response) {
-    const {email,id,lastName,photo,name}= user;
-    const sendedUser = {email,id,lastName,photo,name}
-    const token = this.service.jwtTokenCreator(user.id, this.secret);
+  snedResponse = (statusCode: number, data: NewUser, res: Response) => {
+    const user = this.setUserInfoSafe(data);
+    res.status(statusCode).json(user);
+  };
 
+  setUserInfoSafe = (user: NewUser): UserSafeInfo => {
+    const { email, id, lastName, photo, name, role } = user;
+    const sendedUser = { email, id, lastName, photo, name, role };
+    return sendedUser;
+  };
+
+  createJwtToken(user: NewUser, statusCode: number, res: Response) {
+    const sendedUser = this.setUserInfoSafe(user);
+    const token = this.service.jwtTokenCreator(user.id, this.secret);
     const cookieOption = {
       expires: new Date(Date.now() + this.cookieExpire * this.dayInMiliSecond),
       secure: false,
       httpOnly: true,
     };
+
     if (process.env.NODE_ENV == 'production') {
       cookieOption.secure = true;
     }
@@ -36,7 +51,7 @@ class authController {
       status: 'seccessful',
       token: token,
       data: {
-        sendedUser
+        sendedUser,
       },
     });
   }
@@ -208,9 +223,38 @@ class authController {
       if (!isDeleteUser) {
         return next(new AppError('cant delete user', 404));
       }
-      this.createJwtToken(isDeleteUser,204,res)
+
+      this.createJwtToken(isDeleteUser, 204, res);
     }
   );
+
+  getAllUsers = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const users = await this.service.getAllUser();
+      if (users) {
+        res.status(200).json({
+          message: 'seccuseful',
+          data: users,
+        });
+      }
+    }
+  );
+
+  getUser = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const user = await this.service.getUser(req.params.id, req.user);
+      if (!user) {
+        return next(new AppError('cant get users', 404));
+      }
+      this.snedResponse(200, user, res);
+    }
+  );
+
+  updateUser = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    console.log(id);
+    res.json(req.body);
+  });
 }
 
 export default authController;

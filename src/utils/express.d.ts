@@ -18,6 +18,15 @@ interface NewUser {
   isActive: boolean;
 }
 
+interface UserSafeInfo {
+  id: string;
+  name: string;
+  email: string;
+  lastName: string;
+  photo: string;
+  role?: Role;
+}
+
 interface Location {
   tourId: string; // Foreign key to connect with Tour   @unique @unique
   type: string;
