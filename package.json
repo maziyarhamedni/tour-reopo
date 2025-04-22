@@ -4,7 +4,7 @@
   "main": "test.js",
   "type": "commonjs",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node dist/server.js",
     "debug": "ndb server.js"
   },
   "author": "",
@@ -19,7 +19,6 @@
     "@types/node": "^22.10.6",
     "@types/nodemailer": "^6.4.17",
     "axios": "^1.8.4",
-    "bcrypt": "^5.1.1",
     "express": "^4.21.2",
     "morgan": "^1.10.0",
     "ndb": "^0.2.4",
@@ -27,25 +26,19 @@
     "prisma": "^6.2.1",
     "ts-loader": "^9.5.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "webpack": "^5.99.5",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.12.1",
     "@prisma/adapter-pg": "^6.2.1",
     "@prisma/client": "^6.2.1",
-    "@types/es6-promisify": "^6.0.4",
     "@types/morgan": "^1.9.9",
+    "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
-    "es6-promisify": "^7.0.0",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.10.0",
-    "pg": "^8.13.1",
     "pug": "^3.0.3",
-    "ts-node": "^10.9.2",
-    "xss-clean": "^0.1.4"
+    "ts-node": "^10.9.2"
   }
 }

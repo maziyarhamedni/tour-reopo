@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const userQuery_1 = __importDefault(require("../repository/userQuery"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const email_1 = __importDefault(require("./../utils/email"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 class authService {
     constructor() {
         this.sendResetTokenToEmail = (emailOption) => __awaiter(this, void 0, void 0, function* () {
@@ -144,7 +144,7 @@ class authService {
     correctPassword(password, hashedPassword) {
         return __awaiter(this, void 0, void 0, function* () {
             if (hashedPassword) {
-                return yield bcrypt_1.default.compare(password, hashedPassword);
+                return yield bcryptjs_1.default.compare(password, hashedPassword);
             }
         });
     }

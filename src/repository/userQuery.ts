@@ -1,5 +1,5 @@
 import Repository from './repository';
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
@@ -12,7 +12,7 @@ class UserQuery {
     this.repository = repository.prisma;
   }
   hashPassword = async (input: string) => {
-    return await bcrypt.hash(input, 10);
+    return await bcryptjs.hash(input, 10);
   };
 
   CreateNewUser = async (userInfo: NewUser) => {

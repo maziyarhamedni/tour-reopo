@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { NewUser } from '../utils/express';
 import sendEmail from './../utils/email';
 import { EmailOption } from '../utils/express';
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs'
 class authService {
   userQuery;
 
@@ -92,7 +92,8 @@ class authService {
 
   async correctPassword(password: string, hashedPassword: string | null) {
     if (hashedPassword) {
-      return await bcrypt.compare(password, hashedPassword);
+      
+      return await bcryptjs.compare(password, hashedPassword);
     }
   }
   updatePasswordServiced = async (

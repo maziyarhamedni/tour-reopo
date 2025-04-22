@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const repository_1 = __importDefault(require("./repository"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
 class UserQuery {
     constructor() {
         this.hashPassword = (input) => __awaiter(this, void 0, void 0, function* () {
-            return yield bcrypt_1.default.hash(input, 10);
+            return yield bcryptjs_1.default.hash(input, 10);
         });
         this.CreateNewUser = (userInfo) => __awaiter(this, void 0, void 0, function* () {
             const pass = yield this.hashPassword(userInfo.password);
