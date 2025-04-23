@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import UserQuery from '../repository/userQuery';
 import TourQuery from '../repository/tourQuery';
 import ReviewQuery from '../repository/reviewQuery';
-import AppError from '../utils/AppError';
+
 class viewController {
   tourQuery;
   userQuery;
@@ -22,17 +22,14 @@ class viewController {
   );
   getTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const tour = await this.tourQuery.findTourByName(req.params.slug)!;
+      const tour = await this.tourQuery.findTourById(req.params.id);
+      
       const title = 'Over View page';
-      // console.log(tour?.reviews)
       if (tour) {
         const reviews = await this.reviewQuery.getAllReviewByTourId(tour.id);
-
         res
           .status(200)
           .render('tour', { title: title, tour: tour, reviews: reviews });
-      } else {
-        return next(new AppError('bad request tour dose not exists', 404));
       }
     }
   );

@@ -10,7 +10,7 @@ const viewControl = new viewController;
 viewRouter.get('/',authorize.isLoggedIn, viewControl.getOverview);
 
 viewRouter.get(
-  '/tour/:slug',authorize.isLoggedIn,viewControl.getTour
+  '/tour/:id',authorize.isLoggedIn,viewControl.getTour
 );
 viewRouter.get('/login',authorize.isLoggedIn,viewControl.getLoginform)
 

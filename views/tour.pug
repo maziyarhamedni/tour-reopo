@@ -2,13 +2,13 @@ extends base
 include _reviewCard
 
 block append head
-  script(src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js")
-  link(href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet")
+  script(src='https://api.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js')
  
+
 mixin overviewBox(label, text, icon)
   .overview-box__detail
     svg.overview-box__icon
-      use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      use(xlink:href=`/img/icons.svg#icon`)
     span.overview-box__label= label
     span.overview-box__text= text
 
@@ -50,10 +50,10 @@ block content
             .overview-box__detail
               img.overview-box__img(src=`/img/users/${guide.photo}`, alt=`${guide.name}`)
 
-              - if (guide.role == 'TOURLEADER')
-                span.overview-box__label Tour Leader
-              - if (guide.role == 'GUIDE')
-                span.overview-box__label Tour Guide
+              - if (guide.role === 'lead-guide')
+                span.overview-box__label Lead guide
+              - if (guide.role === 'guide')
+                span.overview-box__label Tour guide
               span.overview-box__text= guide.name
 
     .description-box
@@ -68,16 +68,11 @@ block content
         img.picture-box__img(src=`/img/tours/${img}`, alt=`The Park Camper Tour ${i + 1}`, class=`picture-box__img--${i + 1}`)
 
   section.section-map
-     #map(data-locations=`${JSON.stringify(tour.locations)}`)  
-      h1 heloo
-     script(src="https://unpkg.com/leaflet@1.6.0/leaflet.js" integrity="sha384-YourGeneratedHashHere" crossorigin="anonymous")
-     
+    #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
-
-    
   section.section-reviews
     .reviews
-      each review in tour.reviews
+      each review in reviews
         +reviewCard(review)
 
   section.section-cta
@@ -90,3 +85,4 @@ block content
         h2.heading-secondary What are you waiting for?
         p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
         button.btn.btn--green.span-all-rows Book tour now!
+

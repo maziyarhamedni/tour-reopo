@@ -7,7 +7,6 @@ const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const userQuery_1 = __importDefault(require("../repository/userQuery"));
 const tourQuery_1 = __importDefault(require("../repository/tourQuery"));
 const reviewQuery_1 = __importDefault(require("../repository/reviewQuery"));
-const AppError_1 = __importDefault(require("../utils/AppError"));
 class viewController {
     constructor() {
         this.getLoginform = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -15,17 +14,13 @@ class viewController {
             res.status(200).render('login', { title: title });
         });
         this.getTour = (0, catchAsync_1.default)(async (req, res, next) => {
-            const tour = await this.tourQuery.findTourByName(req.params.slug);
+            const tour = await this.tourQuery.findTourById(req.params.id);
             const title = 'Over View page';
-            // console.log(tour?.reviews)
             if (tour) {
                 const reviews = await this.reviewQuery.getAllReviewByTourId(tour.id);
                 res
                     .status(200)
                     .render('tour', { title: title, tour: tour, reviews: reviews });
-            }
-            else {
-                return next(new AppError_1.default('bad request tour dose not exists', 404));
             }
         });
         this.getOverview = (0, catchAsync_1.default)(async (req, res, next) => {
