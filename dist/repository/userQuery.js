@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,15 +7,16 @@ const repository_1 = __importDefault(require("./repository"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
+const redisClient_1 = __importDefault(require("./redisClient"));
 class UserQuery {
     constructor() {
-        this.hashPassword = (input) => __awaiter(this, void 0, void 0, function* () {
-            return yield bcryptjs_1.default.hash(input, 10);
-        });
-        this.CreateNewUser = (userInfo) => __awaiter(this, void 0, void 0, function* () {
-            const pass = yield this.hashPassword(userInfo.password);
+        this.hashPassword = async (input) => {
+            return await bcryptjs_1.default.hash(input, 10);
+        };
+        this.CreateNewUser = async (userInfo) => {
+            const pass = await this.hashPassword(userInfo.password);
             const date = Date.now().toString();
-            const newUser = yield this.repository.user.create({
+            const newUser = await this.repository.user.create({
                 data: {
                     name: userInfo.name,
                     email: userInfo.email,
@@ -40,49 +32,49 @@ class UserQuery {
                 },
             });
             return newUser;
-        });
-        this.findUserByEmail = (email) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.repository.user.findUnique({
+        };
+        this.findUserByEmail = async (email) => {
+            const user = await this.repository.user.findUnique({
                 where: {
                     email: email,
                     isActive: true,
                 },
             });
             return user;
-        });
-        this.findUserById = (id) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.repository.user.findUnique({
+        };
+        this.findUserById = async (id) => {
+            const user = await this.repository.user.findUnique({
                 where: {
                     id: id,
                     isActive: true,
                 },
             });
             return user;
-        });
-        this.getAllUser = () => __awaiter(this, void 0, void 0, function* () {
-            const allUser = yield this.repository.user.findMany({
+        };
+        this.getAllUser = async () => {
+            const allUser = await this.repository.user.findMany({
                 where: {
-                    isActive: true
-                }
+                    isActive: true,
+                },
             });
             console.log(allUser);
-            return (allUser) ? allUser : false;
-        });
-        this.updateUser = (userEmail, data) => __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.user.update({
+            return allUser ? allUser : false;
+        };
+        this.updateUser = async (userEmail, data) => {
+            await this.repository.user.update({
                 where: {
                     email: userEmail,
                     isActive: true,
                 },
                 data,
             });
-        });
-        this.findUserByRestToken = (resetToken) => __awaiter(this, void 0, void 0, function* () {
+        };
+        this.findUserByRestToken = async (resetToken) => {
             const token = crypto_1.default.createHash('sha256').update(resetToken).digest('hex');
             if (!token) {
                 return false;
             }
-            const user = yield this.repository.user.findUnique({
+            const user = await this.repository.user.findUnique({
                 where: {
                     resetPassword: token,
                     isActive: true,
@@ -92,24 +84,34 @@ class UserQuery {
                 return user;
             }
             return false;
-        });
-        this.createResetPasswordToken = (email) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.findUserByEmail(email);
-            const date = (Date.now() + 10 * 60 * 1000).toString();
+        };
+        this.saveResetTokenOnRedis = async (userId, token) => {
+            const tokenExprition = 600;
+            try {
+                await redisClient_1.default.setex(userId, tokenExprition, token);
+                console.log('Token saved successfully');
+            }
+            catch (err) {
+                console.error('Error saving token:', err);
+            }
+        };
+        this.isTokenMatchWithRedis = async (token, id) => {
+            const savedToken = await redisClient_1.default.get(id);
+            if (!savedToken || savedToken != token) {
+                return false;
+            }
+            return true;
+        };
+        this.createResetPasswordToken = async (email) => {
+            const user = await this.findUserByEmail(email);
             const resetToken = crypto_1.default.randomBytes(32).toString('hex');
             if (user) {
-                user.resetPassword = crypto_1.default
-                    .createHash('sha256')
-                    .update(resetToken)
-                    .digest('hex');
-                yield this.updateUser(email, {
-                    resetPassword: user.resetPassword,
-                    expiredTime: date,
-                });
+                await this.saveResetTokenOnRedis(user.id, resetToken);
                 return resetToken;
             }
-        });
+        };
         const repository = new repository_1.default();
+        this.redis = redisClient_1.default;
         this.repository = repository.prisma;
     }
 }

@@ -7,6 +7,7 @@ import {
   Payload,
   UserSafeInfo,
 } from './../utils/express';
+
 import authService from '../service/authService';
 
 class authController {
@@ -145,7 +146,7 @@ class authController {
         const { user, resetToken } = data;
         const resetURL = `${req.protocol}://${req.get(
           'host'
-        )}/api/v1/users/resetPassword/${resetToken}`;
+        )}/api/v1/users/resetPassword/${resetToken}/${user.id}`;
         const message = `Forgot your password? 
         Submit a PATCH request with your new password
          and passwordConfirm to: ${resetURL}.\n
@@ -156,7 +157,7 @@ class authController {
           message: message,
         };
         try {
-          await this.service.sendResetTokenToEmail(emailOption);
+          await this.service.sendEmail(emailOption);
           res.status(200).json({
             status: 'seccessful',
             meassge: 'check your email box ',
@@ -175,15 +176,17 @@ class authController {
 
   resetPassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const resetToken = req.params.token;
-      const result = await this.service.resetPasswordService(
-        resetToken,
-        req.body.password
+      const { token, userId } = req.params;
+      const password = req.body.password;
+
+      const user = await this.service.resetPasswordService(
+        token,
+        password,
+        userId
       );
-      if (!result) {
-        next(new AppError('your token is expired or token is uncorrect', 401));
-      } else {
-        this.createJwtToken(result, 200, res);
+
+      if (user) {
+        this.createJwtToken(user, 201, res);
       }
     }
   );
@@ -207,7 +210,8 @@ class authController {
 
   authorizeAdmin = (...roles: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-      const user = await this.service.checkUserRole(req.user.id, roles);
+      const curentUser: NewUser = req.user;
+      const user = await this.service.checkUserRole(curentUser.id, roles);
       if (!user) {
         next(new AppError('you cannot access to this mission', 403));
       }

@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -15,16 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const repository_1 = __importDefault(require("./repository"));
 class ReviewQuery {
     constructor() {
-        this.findReviewById = (id) => __awaiter(this, void 0, void 0, function* () {
-            const review = yield this.model.review.findUnique({
+        this.findReviewById = async (id) => {
+            const review = await this.model.review.findUnique({
                 where: {
                     id: id,
                 },
             });
             return review ? review : false;
-        });
-        this.createReview = (data) => __awaiter(this, void 0, void 0, function* () {
-            const review = yield this.model.review.create({
+        };
+        this.createReview = async (data) => {
+            const review = await this.model.review.create({
                 data: {
                     review: data.review,
                     createdAt: new Date(),
@@ -33,30 +24,30 @@ class ReviewQuery {
                     rating: data.rating,
                 },
             });
-            const aggregateData = yield this.model.review.aggregate({
+            const aggregateData = await this.model.review.aggregate({
                 _avg: { rating: true },
                 where: {
                     tourId: data.tourId,
                 },
             });
-            yield this.model.tour.update({
+            await this.model.tour.update({
                 where: { id: data.tourId },
                 data: {
                     ratingsAverage: aggregateData._avg.rating,
                 },
             });
             return review;
-        });
-        this.updateReview = (id, data) => __awaiter(this, void 0, void 0, function* () {
-            yield this.model.review.update({
+        };
+        this.updateReview = async (id, data) => {
+            await this.model.review.update({
                 where: {
                     id: id,
                 },
                 data,
             });
-        });
-        this.getAllReview = (tourId) => __awaiter(this, void 0, void 0, function* () {
-            const allReviews = yield this.model.tour.findUnique({
+        };
+        this.getAllReview = async (tourId) => {
+            const allReviews = await this.model.tour.findUnique({
                 where: {
                     id: tourId,
                 },
@@ -94,9 +85,9 @@ class ReviewQuery {
                 },
             });
             return allReviews ? allReviews : false;
-        });
-        this.getAllReviewByTourId = (tourId) => __awaiter(this, void 0, void 0, function* () {
-            const reviews = yield this.model.review.findMany({
+        };
+        this.getAllReviewByTourId = async (tourId) => {
+            const reviews = await this.model.review.findMany({
                 where: {
                     tourId: tourId,
                 },
@@ -105,15 +96,15 @@ class ReviewQuery {
                 },
             });
             return reviews;
-        });
-        this.deleteReview = (id) => __awaiter(this, void 0, void 0, function* () {
-            yield this.model.review.delete({
+        };
+        this.deleteReview = async (id) => {
+            await this.model.review.delete({
                 where: {
                     id: id,
                 },
             });
             return true;
-        });
+        };
         this.model = new repository_1.default();
     }
 }

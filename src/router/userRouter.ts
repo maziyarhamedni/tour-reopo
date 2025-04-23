@@ -12,16 +12,15 @@ userRouter.patch(
   authorize.protect,
   authorize.updatePassword
 );
-userRouter.patch('/resetPassword/:token', authorize.resetPassword);
+userRouter.patch('/resetPassword/:token/:userId', authorize.resetPassword);
 userRouter.use(authorize.protect);
 userRouter
   .route('/')
   .get(authorize.authorizeAdmin('ADMIN'), authorize.getAllUsers);
-userRouter.use(authorize.authorizeAdmin('ADMIN', 'USER'));
 userRouter
   .route('/:id')
-  .get(authorize.getUser)
-  .patch(authorize.updateUser)
-  .delete(authorize.deleteUser);
+  .get(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.getUser)
+  .patch(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.updateUser)
+  .delete(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.deleteUser);
 
 export default userRouter;

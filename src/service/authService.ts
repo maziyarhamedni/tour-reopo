@@ -3,19 +3,25 @@ import jwt from 'jsonwebtoken';
 import { NewUser } from '../utils/express';
 import sendEmail from './../utils/email';
 import { EmailOption } from '../utils/express';
-import bcryptjs from 'bcryptjs'
+import bcryptjs from 'bcryptjs';
+import redis from '../repository/redisClient';
+
+ 
+
 class authService {
   userQuery;
+  redis
 
   constructor() {
     this.userQuery = new UserQuery();
+    this.redis = redis
   }
 
   jwtTokenCreator(id: any, secret: string) {
     return jwt.sign({ id: id }, secret);
   }
 
-  sendResetTokenToEmail = async (emailOption: EmailOption) => {
+  sendEmail = async (emailOption: EmailOption) => {
     await sendEmail(emailOption);
   };
 
@@ -58,7 +64,7 @@ class authService {
       return { resetToken, user };
     }
   };
-
+ 
   findUserIdAndPassChangeRecently = async (id: string, iat: number) => {
     const user = await this.userQuery.findUserById(id);
 
@@ -72,9 +78,13 @@ class authService {
     return user;
   };
 
-  resetPasswordService = async (resetToken: string, password: string) => {
-    const user = await this.userQuery.findUserByRestToken(resetToken);
-    if (!user) return false;
+  resetPasswordService = async (resetToken: string, password: string,id:string) => {
+    const result = await this.userQuery.isTokenMatchWithRedis(resetToken,id)
+
+
+    
+    const user = await this.userQuery.findUserById(id);
+    if (!user || !result) return false;
 
     const pass = await this.userQuery.hashPassword(password);
     await this.userQuery.updateUser(user.email, {
@@ -92,7 +102,6 @@ class authService {
 
   async correctPassword(password: string, hashedPassword: string | null) {
     if (hashedPassword) {
-      
       return await bcryptjs.compare(password, hashedPassword);
     }
   }
@@ -123,7 +132,6 @@ class authService {
       return false;
     }
   };
-
 
   isPassChengeRecently = async (tokenTime: any, passChengeDate: Date) => {
     const res = this.passwordChenged(tokenTime, passChengeDate);

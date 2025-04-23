@@ -4,6 +4,7 @@ import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
 import redis from './redisClient';
+import { runInThisContext } from 'vm';
 class UserQuery {
   repository;
   redis;
@@ -62,13 +63,13 @@ class UserQuery {
 
   getAllUser = async () => {
     const allUser = await this.repository.user.findMany({
-      where:{
-        isActive:true
-      }
-    })
+      where: {
+        isActive: true,
+      },
+    });
 
-    console.log(allUser)
-    return (allUser) ? allUser : false;
+    console.log(allUser);
+    return allUser ? allUser : false;
   };
   updateUser = async (userEmail: string, data: {}) => {
     await this.repository.user.update({
@@ -81,7 +82,6 @@ class UserQuery {
   };
 
   findUserByRestToken = async (resetToken: string) => {
-
     const token = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     if (!token) {
@@ -101,21 +101,31 @@ class UserQuery {
     return false;
   };
 
+  saveResetTokenOnRedis = async (userId: string, token: string) => {
+    const tokenExprition = 600;
+
+    try {
+      await redis.setex(userId, tokenExprition, token);
+      console.log('Token saved successfully');
+    } catch (err) {
+      console.error('Error saving token:', err);
+    }
+  };
+
+  isTokenMatchWithRedis = async (token: string, id: string) => {
+    const savedToken = await redis.get(id);
+    if (!savedToken || savedToken != token) {
+      return false;
+    }
+    return true;
+  };
+
   createResetPasswordToken = async (email: string) => {
     const user = await this.findUserByEmail(email);
-    const date = (Date.now() + 10 * 60 * 1000).toString();
     const resetToken = crypto.randomBytes(32).toString('hex');
-    // this.redis.
-    if (user) {
-      user.resetPassword = crypto
-        .createHash('sha256')
-        .update(resetToken)
-        .digest('hex');
 
-      await this.updateUser(email, {
-        resetPassword: user.resetPassword,
-        expiredTime: date,
-      });
+    if (user) {
+      await this.saveResetTokenOnRedis(user.id, resetToken);
       return resetToken;
     }
   };

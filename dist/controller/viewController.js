@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,16 +10,16 @@ const reviewQuery_1 = __importDefault(require("../repository/reviewQuery"));
 const AppError_1 = __importDefault(require("../utils/AppError"));
 class viewController {
     constructor() {
-        this.getLoginform = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        this.getLoginform = (0, catchAsync_1.default)(async (req, res, next) => {
             const title = 'please log your account ';
             res.status(200).render('login', { title: title });
-        }));
-        this.getTour = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.tourQuery.findTourByName(req.params.slug);
+        });
+        this.getTour = (0, catchAsync_1.default)(async (req, res, next) => {
+            const tour = await this.tourQuery.findTourByName(req.params.slug);
             const title = 'Over View page';
             // console.log(tour?.reviews)
             if (tour) {
-                const reviews = yield this.reviewQuery.getAllReviewByTourId(tour.id);
+                const reviews = await this.reviewQuery.getAllReviewByTourId(tour.id);
                 res
                     .status(200)
                     .render('tour', { title: title, tour: tour, reviews: reviews });
@@ -36,12 +27,12 @@ class viewController {
             else {
                 return next(new AppError_1.default('bad request tour dose not exists', 404));
             }
-        }));
-        this.getOverview = (0, catchAsync_1.default)((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        });
+        this.getOverview = (0, catchAsync_1.default)(async (req, res, next) => {
             const title = 'Over View page';
-            const tours = yield this.tourQuery.getAllTour();
+            const tours = await this.tourQuery.getAllTour();
             res.status(200).render('overview', { title: title, tours: tours });
-        }));
+        });
         this.tourQuery = new tourQuery_1.default();
         this.userQuery = new userQuery_1.default();
         this.reviewQuery = new reviewQuery_1.default();

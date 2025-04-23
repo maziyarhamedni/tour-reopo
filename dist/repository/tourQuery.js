@@ -1,22 +1,13 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const repository_1 = __importDefault(require("./repository"));
 class TourQuery {
     constructor() {
-        this.createTour = (data) => __awaiter(this, void 0, void 0, function* () {
+        this.createTour = async (data) => {
             // console.log(data);
-            const newTour = yield this.repository.tour.create({
+            const newTour = await this.repository.tour.create({
                 data: {
                     name: data.name,
                     // slug: data.slug,
@@ -36,10 +27,10 @@ class TourQuery {
                 },
             });
             return newTour;
-        });
-        this.createStartLocation = (data) => __awaiter(this, void 0, void 0, function* () {
+        };
+        this.createStartLocation = async (data) => {
             console.log(data.coordinates);
-            const newStartLoc = yield this.repository.tour.update({
+            const newStartLoc = await this.repository.tour.update({
                 where: { id: data.tourId }, // Specify the tour you want to update
                 data: {
                     startLocation: {
@@ -60,9 +51,9 @@ class TourQuery {
                 },
             });
             return newStartLoc;
-        });
-        this.createLocation = (data) => __awaiter(this, void 0, void 0, function* () {
-            const newLocation = yield this.repository.tour.update({
+        };
+        this.createLocation = async (data) => {
+            const newLocation = await this.repository.tour.update({
                 where: { id: data.tourId },
                 data: {
                     locations: {
@@ -77,9 +68,9 @@ class TourQuery {
                 },
             });
             return newLocation;
-        });
-        this.findTourById = (id) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.repository.tour.findUnique({
+        };
+        this.findTourById = async (id) => {
+            const tour = await this.repository.tour.findUnique({
                 where: {
                     id: id,
                 },
@@ -101,9 +92,9 @@ class TourQuery {
                 },
             });
             return tour;
-        });
-        this.findTourByName = (name) => __awaiter(this, void 0, void 0, function* () {
-            const tour = yield this.repository.tour.findUnique({
+        };
+        this.findTourByName = async (name) => {
+            const tour = await this.repository.tour.findUnique({
                 where: {
                     name: name
                 },
@@ -126,9 +117,9 @@ class TourQuery {
                 }
             });
             return tour;
-        });
-        this.getAllTour = () => __awaiter(this, void 0, void 0, function* () {
-            const tours = yield this.repository.tour.findMany({
+        };
+        this.getAllTour = async () => {
+            const tours = await this.repository.tour.findMany({
                 include: {
                     startLocation: true,
                     guides: true,
@@ -136,24 +127,24 @@ class TourQuery {
                 }
             });
             return tours;
-        });
-        this.updateTour = (id, data) => __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.tour.update({
+        };
+        this.updateTour = async (id, data) => {
+            await this.repository.tour.update({
                 where: { id: id },
                 data,
             });
-            const updateTour = yield this.findTourById(id);
+            const updateTour = await this.findTourById(id);
             return updateTour;
-        });
-        this.deleteTour = (id) => __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.tour.delete({
+        };
+        this.deleteTour = async (id) => {
+            await this.repository.tour.delete({
                 where: {
                     id: id,
                 },
             });
-        });
-        this.addTourGuide = (tourId, userIds) => __awaiter(this, void 0, void 0, function* () {
-            const guide = yield this.repository.tour.update({
+        };
+        this.addTourGuide = async (tourId, userIds) => {
+            const guide = await this.repository.tour.update({
                 where: {
                     id: tourId,
                 },
@@ -164,8 +155,8 @@ class TourQuery {
                 },
             });
             return guide;
-        });
-        this.tourWhiten = (radius, lat, lng) => __awaiter(this, void 0, void 0, function* () {
+        };
+        this.tourWhiten = async (radius, lat, lng) => {
             // const toursWithinRadiuds = await this.repository.startLocation.findMany({  
             //   where: {  
             //     // Using a raw filtering condition for geospatial query  
@@ -186,7 +177,7 @@ class TourQuery {
             //     tour: true, // Include associated tour data  
             //   },  
             // });  
-            const toursWithinRadius = yield this.prisma.$queryRaw `  
+            const toursWithinRadius = await this.prisma.$queryRaw `  
     SELECT sl.*, t.*  
     FROM "StartLocation" sl  
     JOIN "Tour" t ON sl."tourId" = t.id  
@@ -197,7 +188,7 @@ class TourQuery {
     );  
   `;
             return toursWithinRadius;
-        });
+        };
         this.repository = new repository_1.default();
         this.prisma = this.repository.prisma;
     }
