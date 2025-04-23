@@ -3,12 +3,14 @@ import bcryptjs from 'bcryptjs';
 import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
-
+import redis from './redisClient';
 class UserQuery {
   repository;
+  redis;
 
   constructor() {
     const repository = new Repository();
+    this.redis = redis;
     this.repository = repository.prisma;
   }
   hashPassword = async (input: string) => {
@@ -79,6 +81,7 @@ class UserQuery {
   };
 
   findUserByRestToken = async (resetToken: string) => {
+
     const token = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     if (!token) {
@@ -102,6 +105,7 @@ class UserQuery {
     const user = await this.findUserByEmail(email);
     const date = (Date.now() + 10 * 60 * 1000).toString();
     const resetToken = crypto.randomBytes(32).toString('hex');
+    // this.redis.
     if (user) {
       user.resetPassword = crypto
         .createHash('sha256')

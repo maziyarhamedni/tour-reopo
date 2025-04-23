@@ -1,4 +1,5 @@
 version: '3.8'  
+
 services:  
   app:  
     build: .  
@@ -8,22 +9,19 @@ services:
       REDIS_URL: 'redis://redis:6379'  
     depends_on:  
       - redis  
-      - redis-stack  
 
   redis:  
     image: redis:latest  
     volumes:  
-      - redis_data:/data  
+      - /docker/host/dir:/data
     ports:  
       - '6379:6379'  
 
   redis-stack:  
-    image: redis/redis-stack:latest  
+    image: redis/redis-stack  
     ports:  
       - '8001:8001'  
-    depends_on:  
-      - redis  
 
-volumes:  
-  redis_data:  
-    driver: local  
+
+
+# No need to declare redis_volume_data in volumes section if using a bind mount  

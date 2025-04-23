@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2017",
     "module": "commonjs", // Or "esnext" if using ES modules
     "strict": true,
     "outDir": "./dist", // Redirect output structure to the dist folder
