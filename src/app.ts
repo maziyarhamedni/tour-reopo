@@ -10,6 +10,7 @@ import errorHandler from './controller/errorHandler';
 import cookiePrser from 'cookie-parser'
 import path from 'path';
 import viewRouter from './router/viewRouter';
+import orderRouter from './router/orderRouter';
 // import AppError from './utils/AppError';
 
 const app = express();
@@ -25,7 +26,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'], // Allow the Axios CDN
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net',"https://sandbox.zarinpal.com"], // Allow the Axios CDN
         // Add other directives as necessary
       },
     },
@@ -44,16 +45,13 @@ const limiter = rateLimit({
 });
 
 //overview router
-
+app.use('/api', limiter)
 app.use('/', viewRouter);
-app.use('/tour', viewRouter);
-app.use('/login', viewRouter);
-
-
-app.use('/api', limiter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/order', orderRouter);
+
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

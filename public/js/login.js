@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict';
 const login = async (email, password) => {
   console.log('login');
   console.log(email, password);
@@ -19,14 +19,20 @@ const login = async (email, password) => {
   }
 };
 
-// Ensure DOM is loaded before attaching event listeners
+//
+let formTag;
+// sure DOM is lletoaded before attaching event listeners
 document.addEventListener('DOMContentLoaded', function () {
+  formTag = document.querySelector('.form');
+});
+
+if (formTag) {
   document.querySelector('.form').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
-
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-
     login(email, password);
   });
-});
+}
+// EnsureEn
+//

@@ -108,8 +108,6 @@ class TourQuery {
                                 omit: {
                                     password: true,
                                     passwordChengeAt: true,
-                                    resetPassword: true,
-                                    passwordConfrim: true
                                 }
                             }
                         }

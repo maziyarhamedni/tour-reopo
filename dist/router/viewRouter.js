@@ -13,4 +13,5 @@ const viewControl = new viewController_1.default;
 viewRouter.get('/', authorize.isLoggedIn, viewControl.getOverview);
 viewRouter.get('/tour/:id', authorize.isLoggedIn, viewControl.getTour);
 viewRouter.get('/login', authorize.isLoggedIn, viewControl.getLoginform);
+viewRouter.get('/payment', authorize.protect, viewControl.getAccount);
 exports.default = viewRouter;

@@ -14,6 +14,7 @@ const errorHandler_1 = __importDefault(require("./controller/errorHandler"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const path_1 = __importDefault(require("path"));
 const viewRouter_1 = __importDefault(require("./router/viewRouter"));
+const orderRouter_1 = __importDefault(require("./router/orderRouter"));
 // import AppError from './utils/AppError';
 const app = (0, express_1.default)();
 app.set('view engine', 'pug');
@@ -25,7 +26,7 @@ app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'], // Allow the Axios CDN
+            scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', "https://sandbox.zarinpal.com"], // Allow the Axios CDN
             // Add other directives as necessary
         },
     },
@@ -41,13 +42,12 @@ const limiter = (0, express_rate_limit_1.default)({
     message: 'too many requests from this IP , please try again an hour!',
 });
 //overview router
-app.use('/', viewRouter_1.default);
-app.use('/tour', viewRouter_1.default);
-app.use('/login', viewRouter_1.default);
 app.use('/api', limiter);
+app.use('/', viewRouter_1.default);
 app.use('/api/v1/tours', tourRouter_1.default);
 app.use('/api/v1/users', userRouter_1.default);
 app.use('/api/v1/reviews', reviewRouter_1.default);
+app.use('/api/v1/order', orderRouter_1.default);
 app.all('*', (req, res, next) => {
     next(new AppError_1.default(`Can't find ${req.originalUrl} on this server!`, 404));
 });

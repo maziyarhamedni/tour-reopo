@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// import TourQuery from '../repository/tourQuery';
 const AppError_1 = __importDefault(require("../utils/AppError"));
 const tourService_1 = __importDefault(require("../service/tourService"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
@@ -103,3 +104,7 @@ class TourController {
     }
 }
 exports.default = TourController;
+////////
+// https://sandbox.zarinpal.com/pg/v4/payment/request.json
+// https://sandbox.zarinpal.com/pg/v4/payment/verify.json
+// https://sandbox.zarinpal.com/pg/StartPay/

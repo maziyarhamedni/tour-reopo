@@ -1,21 +1,19 @@
 // express.d.ts
 import { Request } from 'express';
 import { NewUser } from './dataStructure';
-import { Difficulty, Role } from '@prisma/client';
+import { Difficulty, Order, Role } from '@prisma/client';
 interface NewUser {
-  resetPassword: string;
   id: string;
   name: string;
   email: string;
   lastName: string;
   photo: string;
   password: string;
-  passwordConfrim: string;
+  passwordConfrim?: string;
   passwordChengeAt: Date;
   role: Role;
-  resetPassword: string;
-  expiredTime: string;
   isActive: boolean;
+  order: Order[];
 }
 
 interface UserSafeInfo {
@@ -53,6 +51,12 @@ interface EmailOption {
 declare module 'express' {
   interface Request {
     user?: NewUser;
+    order?: {
+      count: string;
+      userId: string;
+      tourId: string;
+      price: number;
+    };
   }
 }
 declare module 'axios' {

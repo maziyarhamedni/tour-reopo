@@ -1,6 +1,9 @@
 import express from 'express';
 import authController from '../controller/authController';
+import multer from 'multer'
 
+
+const upload = multer({dest:'public/imag/users'})
 const userRouter = express.Router();
 const authorize = new authController();
 
@@ -20,7 +23,7 @@ userRouter
 userRouter
   .route('/:id')
   .get(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.getUser)
-  .patch(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.updateUser)
+  .patch(upload.single('photo'), authorize.updateUser)
   .delete(authorize.authorizeAdmin('ADMIN', 'USER'), authorize.deleteUser);
 
 export default userRouter;

@@ -23,6 +23,10 @@ class viewController {
                     .render('tour', { title: title, tour: tour, reviews: reviews });
             }
         });
+        this.getAccount = (0, catchAsync_1.default)(async (req, res, next) => {
+            const title = 'Over View page';
+            res.status(200).render('payment', { title: title });
+        });
         this.getOverview = (0, catchAsync_1.default)(async (req, res, next) => {
             const title = 'Over View page';
             const tours = await this.tourQuery.getAllTour();

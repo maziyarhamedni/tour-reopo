@@ -21,6 +21,9 @@ tourRouter
     .get(authcontrol.protect, controller.getTour)
     .patch(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.updateTour)
     .delete(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.deleteTour);
+// tourRouter.route('/:id/card').post(
+//   authcontrol.protect,
+// )
 tourRouter
     .route('/:id/startLocation')
     .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.addStartLoc);

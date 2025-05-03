@@ -64,7 +64,13 @@ class authController {
       if (!result) {
         return next(new AppError('you are not sign up try again', 403));
       }
-      this.createJwtToken(result, 201, res);
+      const userWithOrder = {
+        ...result,
+        order: [],
+        expiredTime: new Date(),
+        resetPassword: '',
+      };
+      this.createJwtToken(userWithOrder, 201, res);
     }
   );
 
@@ -78,7 +84,13 @@ class authController {
       if (!user) {
         return next(new AppError('email or password is not correct', 403));
       }
-      this.createJwtToken(user, 200, res);
+      const userWithOrder = {
+        ...user,
+        order: [],
+        expiredTime: new Date(),
+        resetPassword: '',
+      };
+      this.createJwtToken(userWithOrder, 200, res);
     }
   );
 
@@ -186,7 +198,13 @@ class authController {
       );
 
       if (user) {
-        this.createJwtToken(user, 201, res);
+        const userWithOrder = {
+          ...user,
+          order: [],
+          expiredTime: new Date(),
+          resetPassword: '',
+        };
+        this.createJwtToken(userWithOrder, 201, res);
       }
     }
   );
@@ -204,7 +222,13 @@ class authController {
       if (!result) {
         return next(new AppError('user not found ', 404));
       }
-      this.createJwtToken(result, 200, res);
+      const userWithOrder = {
+        ...result,
+        order: [],
+        expiredTime: new Date(),
+        resetPassword: '',
+      };
+      this.createJwtToken(userWithOrder, 200, res);
     }
   );
 
@@ -227,8 +251,13 @@ class authController {
       if (!isDeleteUser) {
         return next(new AppError('cant delete user', 404));
       }
-
-      this.createJwtToken(isDeleteUser, 204, res);
+      const userWithOrder = {
+        ...isDeleteUser,
+        order: [],
+        expiredTime: new Date(),
+        resetPassword: '',
+      };
+      this.createJwtToken(userWithOrder, 204, res);
     }
   );
 
@@ -250,13 +279,20 @@ class authController {
       if (!user) {
         return next(new AppError('cant get users', 404));
       }
-      this.snedResponse(200, user, res);
+      const userWithOrder = {
+        ...user,
+        order: [],
+        expiredTime: new Date(),
+        resetPassword: '',
+      };
+      this.snedResponse(200, userWithOrder, res);
     }
   );
 
   updateUser = catchAsync(async (req: Request, res: Response) => {
-    const id = req.params.id;
-    console.log(id);
+    // const id = req.params.id;
+    console.log(req.file);
+    // console.log(req.body);
     res.json(req.body);
   });
 }

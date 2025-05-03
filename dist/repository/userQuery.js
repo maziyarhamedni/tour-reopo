@@ -22,13 +22,13 @@ class UserQuery {
                     email: userInfo.email,
                     lastName: userInfo.lastName,
                     password: pass,
-                    passwordConfrim: 'ok',
                     passwordChengeAt: new Date(),
-                    resetPassword: date + 'e',
                     role: client_1.Role.USER,
-                    expiredTime: '',
                     isActive: true,
                     photo: userInfo.photo,
+                    orders: {
+                        create: []
+                    }
                 },
             });
             return newUser;
@@ -68,22 +68,6 @@ class UserQuery {
                 },
                 data,
             });
-        };
-        this.findUserByRestToken = async (resetToken) => {
-            const token = crypto_1.default.createHash('sha256').update(resetToken).digest('hex');
-            if (!token) {
-                return false;
-            }
-            const user = await this.repository.user.findUnique({
-                where: {
-                    resetPassword: token,
-                    isActive: true,
-                },
-            });
-            if (user && parseInt(user.expiredTime) > Date.now()) {
-                return user;
-            }
-            return false;
         };
         this.saveResetTokenOnRedis = async (userId, token) => {
             const tokenExprition = 600;

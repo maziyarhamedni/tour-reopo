@@ -23,7 +23,8 @@ class authController {
             if (!result) {
                 return next(new AppError_1.default('you are not sign up try again', 403));
             }
-            this.createJwtToken(result, 201, res);
+            const userWithOrder = Object.assign(Object.assign({}, result), { order: [], expiredTime: new Date(), resetPassword: '' });
+            this.createJwtToken(userWithOrder, 201, res);
         });
         this.logIn = (0, catchAsync_1.default)(async (req, res, next) => {
             const { email, password } = req.body;
@@ -34,7 +35,8 @@ class authController {
             if (!user) {
                 return next(new AppError_1.default('email or password is not correct', 403));
             }
-            this.createJwtToken(user, 200, res);
+            const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
+            this.createJwtToken(userWithOrder, 200, res);
         });
         this.protect = (0, catchAsync_1.default)(async (req, res, next) => {
             let token;
@@ -105,7 +107,8 @@ class authController {
             const password = req.body.password;
             const user = await this.service.resetPasswordService(token, password, userId);
             if (user) {
-                this.createJwtToken(user, 201, res);
+                const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
+                this.createJwtToken(userWithOrder, 201, res);
             }
         });
         this.updatePassword = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -116,7 +119,8 @@ class authController {
             if (!result) {
                 return next(new AppError_1.default('user not found ', 404));
             }
-            this.createJwtToken(result, 200, res);
+            const userWithOrder = Object.assign(Object.assign({}, result), { order: [], expiredTime: new Date(), resetPassword: '' });
+            this.createJwtToken(userWithOrder, 200, res);
         });
         this.authorizeAdmin = (...roles) => {
             return async (req, res, next) => {
@@ -134,7 +138,8 @@ class authController {
             if (!isDeleteUser) {
                 return next(new AppError_1.default('cant delete user', 404));
             }
-            this.createJwtToken(isDeleteUser, 204, res);
+            const userWithOrder = Object.assign(Object.assign({}, isDeleteUser), { order: [], expiredTime: new Date(), resetPassword: '' });
+            this.createJwtToken(userWithOrder, 204, res);
         });
         this.getAllUsers = (0, catchAsync_1.default)(async (req, res, next) => {
             const users = await this.service.getAllUser();
@@ -150,11 +155,13 @@ class authController {
             if (!user) {
                 return next(new AppError_1.default('cant get users', 404));
             }
-            this.snedResponse(200, user, res);
+            const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
+            this.snedResponse(200, userWithOrder, res);
         });
         this.updateUser = (0, catchAsync_1.default)(async (req, res) => {
-            const id = req.params.id;
-            console.log(id);
+            // const id = req.params.id;
+            console.log(req.file);
+            // console.log(req.body);
             res.json(req.body);
         });
         this.secret = process.env.JWT_SECRET;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import TourQuery from '../repository/tourQuery';
+// import TourQuery from '../repository/tourQuery';
 import AppError from '../utils/AppError';
 import TourService from '../service/tourService';
 import catchAsync from '../utils/catchAsync';
@@ -135,3 +135,18 @@ class TourController {
 }
 
 export default TourController;
+////////
+
+
+
+
+// https://sandbox.zarinpal.com/pg/v4/payment/request.json
+// https://sandbox.zarinpal.com/pg/v4/payment/verify.json
+// https://sandbox.zarinpal.com/pg/StartPay/
+
+
+
+
+
+
+
