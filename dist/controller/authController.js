@@ -23,7 +23,7 @@ class authController {
             if (!result) {
                 return next(new AppError_1.default('you are not sign up try again', 403));
             }
-            const userWithOrder = Object.assign(Object.assign({}, result), { order: [], expiredTime: new Date(), resetPassword: '' });
+            const userWithOrder = Object.assign(Object.assign({}, result), { order: [] });
             this.createJwtToken(userWithOrder, 201, res);
         });
         this.logIn = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -35,7 +35,7 @@ class authController {
             if (!user) {
                 return next(new AppError_1.default('email or password is not correct', 403));
             }
-            const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
+            const userWithOrder = Object.assign(Object.assign({}, user), { order: [] });
             this.createJwtToken(userWithOrder, 200, res);
         });
         this.protect = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -47,6 +47,7 @@ class authController {
                 }
                 else {
                     token = req.cookies.jwt;
+                    console.log(req.cookies.jwt);
                 }
                 const decode = await this.service.jwtVerifyPromisified(token, this.secret);
                 const user = await this.service.findUserIdAndPassChangeRecently(decode.id, decode.iat);

@@ -20,11 +20,11 @@ userRouter.patch('/resetPassword/:token/:userId', authorize.resetPassword);
 userRouter.use(authorize.protect);
 userRouter
   .route('/')
-  .get(authorize.authorizeAdmin('ADMIN'), userControl.getAllUsers);
+  .get(authorize.accessRoleIs('ADMIN'), userControl.getAllUsers);
 userRouter
   .route('/:id')
-  .get(authorize.authorizeAdmin('ADMIN', 'USER'), userControl.getUser)
+  .get(authorize.accessRoleIs('ADMIN', 'USER'), userControl.getUser)
   .patch(upload.single('photo'), userControl.updateUser)
-  .delete(authorize.authorizeAdmin('ADMIN', 'USER'), userControl.deleteUser);
+  .delete(authorize.accessRoleIs('ADMIN', 'USER'), userControl.deleteUser);
 
 export default userRouter;

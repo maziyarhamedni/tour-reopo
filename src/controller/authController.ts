@@ -7,7 +7,6 @@ import {
   Payload,
   UserSafeInfo,
 } from './../utils/express';
-
 import authService from '../service/authService';
 
 class authController {
@@ -67,13 +66,10 @@ class authController {
       const userWithOrder = {
         ...result,
         order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
       };
       this.createJwtToken(userWithOrder, 201, res);
     }
   );
-
 
   logIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -88,8 +84,6 @@ class authController {
       const userWithOrder = {
         ...user,
         order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
       };
       this.createJwtToken(userWithOrder, 200, res);
     }
@@ -98,28 +92,38 @@ class authController {
   protect = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       let token: string;
+
+      // console.log(req.cookies.jwt);
+
       if (typeof req.headers.authorization == 'string') {
         const authorizaton = req.headers.authorization;
 
         if (authorizaton && authorizaton.startsWith('Bearer')) {
           token = authorizaton.split(' ')[1];
         } else {
-          token = req.cookies.jwt;
+          token = await req.cookies.jwt;
         }
-        const decode: Payload = await this.service.jwtVerifyPromisified(
-          token,
-          this.secret
-        );
-        const user = await this.service.findUserIdAndPassChangeRecently(
-          decode.id,
-          decode.iat
-        );
-        if (!decode.id || !user) {
-          return next(new AppError('user in not exists anymore ', 404));
-        }
-        req.user = user;
+      } else {
+        token = await req.cookies.jwt;
       }
+      const decode: Payload = await this.service.jwtVerifyPromisified(
+        token,
+        this.secret
+      );
+      const user = await this.service.findUserIdAndPassChangeRecently(
+        decode.id,
+        decode.iat
+      );
 
+      if (!decode.id || !user) {
+        return next(new AppError('user in not exists anymore ', 404));
+      }
+      const userWithOrder = {
+        ...user,
+        order: [],
+      };
+      const safeUser = this.setUserInfoSafe(userWithOrder);
+      req.user = safeUser;
       next();
     }
   );
@@ -202,14 +206,11 @@ class authController {
         const userWithOrder = {
           ...user,
           order: [],
-          expiredTime: new Date(),
-          resetPassword: '',
         };
         this.createJwtToken(userWithOrder, 201, res);
       }
     }
   );
-
 
   updatePassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -234,8 +235,7 @@ class authController {
     }
   );
 
-
-  authorizeAdmin = (...roles: any) => {
+  accessRoleIs = (...roles: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       const curentUser: NewUser = req.user;
       const user = await this.service.checkUserRole(curentUser.id, roles);
@@ -245,9 +245,6 @@ class authController {
       next();
     };
   };
-
-
-
 }
 
 export default authController;

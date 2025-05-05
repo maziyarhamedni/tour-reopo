@@ -36,12 +36,7 @@ class authService {
     }
   };
 
-  getUserOrders = async(userId:string)=>{
-
-    // const orders = await this.orderQuery.findOrderByUserId(userId)
-
-     
-  }
+ 
 
   checkLogIn = async (email: string, password: string) => {
     const user = await this.userQuery.findUserByEmail(email);

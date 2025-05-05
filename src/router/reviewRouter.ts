@@ -17,7 +17,7 @@ reviewRouter
   .get(reviewControlerObj.getAll)
 
   .post(
-    authorize.authorizeAdmin('USER'),
+    authorize.accessRoleIs('USER'),
     reviewControlerObj.setTourUserIds,
     reviewControlerObj.createOne
   );
@@ -25,12 +25,12 @@ reviewRouter
 reviewRouter
   .route('/s1/:id')
   .patch(
-    authorize.authorizeAdmin('USER', 'ADMIN'),
+    authorize.accessRoleIs('USER', 'ADMIN'),
     reviewControlerObj.updateOne
   )
   .get(reviewControlerObj.getReview)
   .delete(
-    authorize.authorizeAdmin('USER', 'ADMIN'),
+    authorize.accessRoleIs('USER', 'ADMIN'),
     reviewControlerObj.deleteOne
   );
 
