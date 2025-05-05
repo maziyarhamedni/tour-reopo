@@ -10,14 +10,16 @@ class OrderService {
     this.tourQuery = new TourQuery();
   }
 
-  createOrder = 
-  async (tourid: string,userid: string,price: number,data: PaymentResponse ) => {
-
-
+  createOrder = async (
+    tourid: string,
+    userid: string,
+    price: number,
+    data: PaymentResponse
+  ) => {
     const tour = await this.tourQuery.findTourById(tourid);
     if (tour) {
-      const count = (tour?.price / price);
-      console.log(`tour price is ${tour.price} and user paid ${price}`)
+      const count = tour?.price / price;
+      console.log(`tour price is ${tour.price} and user paid ${price}`);
       const order = await this.orderQuery.addOrderToUser(
         userid,
         tourid,
@@ -25,9 +27,17 @@ class OrderService {
         tour.startDates[0],
         data
       );
+      //delete tedatourda karbar
+      const group = tour.maxGroupSize - count;
+      await this.tourQuery.updateTour(tourid, { maxGroupSize: group });
       return order ? order : false;
-
     }
+  };
+
+  getOrderbyUserId = async (userId: string) => {
+    const orders = await this.orderQuery.findOrderByUserId(userId);
+
+    return orders ? orders : false;
   };
 }
 

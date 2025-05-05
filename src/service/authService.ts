@@ -5,12 +5,13 @@ import sendEmail from './../utils/email';
 import { EmailOption } from '../utils/express';
 import bcryptjs from 'bcryptjs';
 import redis from '../repository/redisClient';
-
+import OrderQuery from '../repository/orderQuery';
  
 
 class authService {
   userQuery;
   redis
+  
 
   constructor() {
     this.userQuery = new UserQuery();
@@ -34,6 +35,13 @@ class authService {
       return false;
     }
   };
+
+  getUserOrders = async(userId:string)=>{
+
+    // const orders = await this.orderQuery.findOrderByUserId(userId)
+
+     
+  }
 
   checkLogIn = async (email: string, password: string) => {
     const user = await this.userQuery.findUserByEmail(email);

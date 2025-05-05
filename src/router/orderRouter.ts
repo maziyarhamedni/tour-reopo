@@ -6,7 +6,13 @@ const orderRouter = express.Router();
 const authorize = new authController();
 
 orderRouter
-  .route('/:tourId')
+  .route('/buy/:tourId')
   .post(authorize.protect, orderControl.redirectUserToPayment);
+
+
+
+orderRouter
+  .route('/:userId')
+  .get(authorize.protect, orderControl.getOrderByUserId);
 
 export default orderRouter;

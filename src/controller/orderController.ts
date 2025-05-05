@@ -7,14 +7,14 @@ import OrderService from '../service/orderService';
 class orderController {
   shenaseSite: string;
   price: number;
-  count :number;
-  service:OrderService
+  count: number;
+  service: OrderService;
 
   constructor() {
     this.shenaseSite = process.env.SITE_PAYMENT_ID!;
     this.price = 0;
-    this.count = 0
-    this.service = new OrderService()
+    this.count = 0;
+    this.service = new OrderService();
   }
 
   redirectUserToPayment = catchAsync(
@@ -25,15 +25,22 @@ class orderController {
       this.count = count;
       this.price = parseInt(String(price * count));
       await this.sendPaymentRequest(tourId, userId);
-      res.send('payment page is loding...')
-
+      res.send('payment page is loding...');
     }
   );
 
+  getOrderByUserId = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = req.params.userId;
+      const orders = await this.service.getOrderbyUserId(userId);
 
-
- 
-
+      if (orders) {
+       res.status(200).json(orders)
+      } else {
+        console.log('this is not order yet [] ');
+      }
+    }
+  );
 
   sendPaymentRequest = async (tourId: string, userId: string) => {
     try {

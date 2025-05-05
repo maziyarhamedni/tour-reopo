@@ -35,11 +35,24 @@ class OrderQuery {
     });
     
 
-
-
-  
     return order?order:false
   };
+
+
+
+  findOrderByUserId = async (userid:string)=>{
+      
+
+    const orders = await this.order.findMany({
+      where:{
+        userId:userid
+      }
+    })
+
+
+    return orders?orders:false
+  }
+
 }
 
 export default OrderQuery;

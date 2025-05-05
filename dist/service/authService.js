@@ -23,6 +23,9 @@ class authService {
                 return false;
             }
         };
+        this.getUserOrders = async (userId) => {
+            // const orders = await this.orderQuery.findOrderByUserId(userId)
+        };
         this.checkLogIn = async (email, password) => {
             const user = await this.userQuery.findUserByEmail(email);
             if (!user || !(await this.checkUserPassword(password, user.password))) {

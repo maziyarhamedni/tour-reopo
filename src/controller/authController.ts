@@ -74,6 +74,7 @@ class authController {
     }
   );
 
+
   logIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { email, password } = req.body;
@@ -209,6 +210,7 @@ class authController {
     }
   );
 
+
   updatePassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.user.id!;
@@ -232,6 +234,7 @@ class authController {
     }
   );
 
+
   authorizeAdmin = (...roles: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       const curentUser: NewUser = req.user;
@@ -243,58 +246,8 @@ class authController {
     };
   };
 
-  deleteUser = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const id = req.params.id;
-      const isDeleteUser = await this.service.deleteUserService(id);
 
-      if (!isDeleteUser) {
-        return next(new AppError('cant delete user', 404));
-      }
-      const userWithOrder = {
-        ...isDeleteUser,
-        order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
-      };
-      this.createJwtToken(userWithOrder, 204, res);
-    }
-  );
 
-  getAllUsers = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const users = await this.service.getAllUser();
-      if (users) {
-        res.status(200).json({
-          message: 'seccuseful',
-          data: users,
-        });
-      }
-    }
-  );
-
-  getUser = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const user = await this.service.getUser(req.params.id, req.user);
-      if (!user) {
-        return next(new AppError('cant get users', 404));
-      }
-      const userWithOrder = {
-        ...user,
-        order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
-      };
-      this.snedResponse(200, userWithOrder, res);
-    }
-  );
-
-  updateUser = catchAsync(async (req: Request, res: Response) => {
-    // const id = req.params.id;
-    console.log(req.file);
-    // console.log(req.body);
-    res.json(req.body);
-  });
 }
 
 export default authController;

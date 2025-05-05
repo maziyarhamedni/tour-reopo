@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const open_1 = __importStar(require("open"));
 const axios_1 = __importDefault(require("axios"));
+const orderService_1 = __importDefault(require("../service/orderService"));
 class orderController {
     constructor() {
         this.redirectUserToPayment = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -50,13 +51,14 @@ class orderController {
             await this.sendPaymentRequest(tourId, userId);
             res.send('payment page is loding...');
         });
-        this.checkPaymentResult = (0, catchAsync_1.default)(async (req, res, next) => {
-            try {
-                console.log(req.query.Authority);
+        this.getOrderByUserId = (0, catchAsync_1.default)(async (req, res, next) => {
+            const userId = req.params.userId;
+            const orders = await this.service.getOrderbyUserId(userId);
+            if (orders) {
+                res.status(200).json(orders);
             }
-            catch (error) {
-                const axiosError = error;
-                console.error('Error:', axiosError.response ? axiosError.response.data : axiosError.message);
+            else {
+                console.log('this is not order yet [] ');
             }
         });
         this.sendPaymentRequest = async (tourId, userId) => {
@@ -92,6 +94,7 @@ class orderController {
         this.shenaseSite = process.env.SITE_PAYMENT_ID;
         this.price = 0;
         this.count = 0;
+        this.service = new orderService_1.default();
     }
 }
 exports.default = orderController;

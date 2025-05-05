@@ -8,6 +8,7 @@ const userQuery_1 = __importDefault(require("../repository/userQuery"));
 const tourQuery_1 = __importDefault(require("../repository/tourQuery"));
 const reviewQuery_1 = __importDefault(require("../repository/reviewQuery"));
 const axios_1 = __importDefault(require("axios"));
+const orderService_1 = __importDefault(require("../service/orderService"));
 class viewController {
     constructor() {
         this.getLoginform = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -16,7 +17,7 @@ class viewController {
         });
         this.getTour = (0, catchAsync_1.default)(async (req, res, next) => {
             const tour = await this.tourQuery.findTourById(req.params.id);
-            const title = 'Over View page';
+            const title = 'tour page';
             if (tour) {
                 const reviews = await this.reviewQuery.getAllReviewByTourId(tour.id);
                 res
@@ -28,6 +29,7 @@ class viewController {
             const authoraity = req.query.Authority;
             const status = req.query.Status;
             const { count, tourId, userId } = req.params;
+            const numPrice = parseInt(count);
             let result;
             try {
                 const response = await axios_1.default.post('https://sandbox.zarinpal.com/pg/v4/payment/verify.json', {
@@ -46,25 +48,27 @@ class viewController {
                 const axiosError = error;
                 console.error('Error:', axiosError.response ? axiosError.response.data : axiosError.message);
             }
-            // console.log(result);
-            if ((result === null || result === void 0 ? void 0 : result.data.code) == 100 || (result === null || result === void 0 ? void 0 : result.data.code) == 101) {
-                res.status(200).render('payment', { result: result });
-                console.log(result.data.code);
-                /// now i must create order in db
+            if ((result === null || result === void 0 ? void 0 : result.data.code) == 100) {
+                const order = await this.orderService.createOrder(tourId, userId, numPrice, result);
+                res.status(200).render('payment', { result: order });
             }
             else {
-                res.status(200).render('payment', { result: result === null || result === void 0 ? void 0 : result.data.message });
+                const reviews = await this.reviewQuery.getAllReviewByTourId(tourId);
+                const tour = await this.tourQuery.findTourById(tourId);
+                res
+                    .status(200)
+                    .render('tour', { title: 'tour page', tour: tour, reviews: reviews });
                 // console.log(result)
             }
         });
         this.getOverview = (0, catchAsync_1.default)(async (req, res, next) => {
-            const title = 'Over View page';
             const tours = await this.tourQuery.getAllTour();
-            res.status(200).render('overview', { title: title, tours: tours });
+            res.status(200).render('overview', { title: 'main page', tours: tours });
         });
         this.tourQuery = new tourQuery_1.default();
         this.userQuery = new userQuery_1.default();
         this.reviewQuery = new reviewQuery_1.default();
+        this.orderService = new orderService_1.default();
         this.shenaseSite = process.env.SITE_PAYMENT_ID;
     }
 }

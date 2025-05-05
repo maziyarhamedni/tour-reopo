@@ -84,7 +84,7 @@ class viewController {
           numPrice,
           result
         );
-        console.log(order);
+     
 
         res.status(200).render('payment', { result: order });
       } else {

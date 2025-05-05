@@ -10,9 +10,9 @@ const orderControl = new orderController_1.default();
 const orderRouter = express_1.default.Router();
 const authorize = new authController_1.default();
 orderRouter
-    .route('/:tourId')
+    .route('/buy/:tourId')
     .post(authorize.protect, orderControl.redirectUserToPayment);
 orderRouter
-    .route('/check-payment')
-    .post(authorize.protect, orderControl.checkPaymentResult);
+    .route('/:userId')
+    .get(authorize.protect, orderControl.getOrderByUserId);
 exports.default = orderRouter;
