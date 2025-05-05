@@ -15,7 +15,13 @@ interface NewUser {
   isActive: boolean;
   order: Order[];
 }
-
+interface PaymentResponse {
+  data: {code: number;
+   message: string;
+   card_hash: string;
+   card_pan: string;
+   ref_id: number;}
+ }
 interface UserSafeInfo {
   id: string;
   name: string;

@@ -14,5 +14,5 @@ orderRouter
     .post(authorize.protect, orderControl.redirectUserToPayment);
 orderRouter
     .route('/check-payment')
-    .get(authorize.protect, orderControl.checkPaymentResult);
+    .post(authorize.protect, orderControl.checkPaymentResult);
 exports.default = orderRouter;

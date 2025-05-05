@@ -45,13 +45,14 @@ class orderController {
             const { price, count } = req.body;
             const tourId = req.params.tourId;
             const userId = req.user.id;
+            this.count = count;
             this.price = parseInt(String(price * count));
             await this.sendPaymentRequest(tourId, userId);
+            res.send('payment page is loding...');
         });
         this.checkPaymentResult = (0, catchAsync_1.default)(async (req, res, next) => {
             try {
-                const body = await req.body;
-                console.log(`res is ${res} \n  req is ${req} `);
+                console.log(req.query.Authority);
             }
             catch (error) {
                 const axiosError = error;
@@ -63,7 +64,7 @@ class orderController {
                 const response = await axios_1.default.post('https://sandbox.zarinpal.com/pg/v4/payment/request.json', {
                     merchant_id: this.shenaseSite,
                     amount: this.price,
-                    callback_url: 'http://127.0.0.1:3000/payment',
+                    callback_url: `http://127.0.0.1:3000/payment/${tourId}/${userId}/${this.price}`,
                     description: ` buy tour from site tour.com `,
                     metadata: {
                         userId: `${userId}`,
@@ -90,6 +91,7 @@ class orderController {
         };
         this.shenaseSite = process.env.SITE_PAYMENT_ID;
         this.price = 0;
+        this.count = 0;
     }
 }
 exports.default = orderController;

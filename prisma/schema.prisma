@@ -37,7 +37,7 @@ model Order {
   tourTime      DateTime @default(now())
   userId        String
   tourId        String
-  transactionId String
+  transactionId Int      @unique
   count         Int      @default(1)
   user          User     @relation("UserOrder", fields: [userId], references: [id])
 

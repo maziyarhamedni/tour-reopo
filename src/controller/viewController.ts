@@ -1,13 +1,15 @@
 import catchAsync from '../utils/catchAsync';
+import { PaymentResponse } from '../utils/express';
 import { Request, Response, NextFunction } from 'express';
 import UserQuery from '../repository/userQuery';
 import TourQuery from '../repository/tourQuery';
 import ReviewQuery from '../repository/reviewQuery';
 import axios from 'axios';
-// import { response } from 'src/app';
+import OrderService from '../service/orderService';
 
 class viewController {
   tourQuery;
+  orderService: OrderService;
   userQuery;
   reviewQuery;
   shenaseSite: string;
@@ -15,6 +17,7 @@ class viewController {
     this.tourQuery = new TourQuery();
     this.userQuery = new UserQuery();
     this.reviewQuery = new ReviewQuery();
+    this.orderService = new OrderService();
     this.shenaseSite = process.env.SITE_PAYMENT_ID!;
   }
 
@@ -28,7 +31,7 @@ class viewController {
     async (req: Request, res: Response, next: NextFunction) => {
       const tour = await this.tourQuery.findTourById(req.params.id);
 
-      const title = 'Over View page';
+      const title = 'tour page';
       if (tour) {
         const reviews = await this.reviewQuery.getAllReviewByTourId(tour.id);
         res
@@ -37,14 +40,17 @@ class viewController {
       }
     }
   );
-  getAccount = catchAsync(
+
+  paymentResult = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const authoraity = req.query.Authority;
       const status = req.query.Status;
       const { count, tourId, userId } = req.params;
+      const numPrice = parseInt(count);
+
       let result;
       try {
-        const response = await axios.post(
+        const response = await axios.post<PaymentResponse>(
           'https://sandbox.zarinpal.com/pg/v4/payment/verify.json',
           {
             merchant_id: this.shenaseSite,
@@ -59,11 +65,10 @@ class viewController {
           }
         );
 
-        result = response;
-        console.log(result.data);
+        result = response.data;
       } catch (error) {
         const axiosError = error as {
-          response?: { data: any };
+          response?: { data: PaymentResponse };
           message: string;
         };
         console.error(
@@ -72,18 +77,30 @@ class viewController {
         );
       }
 
-      if (result) {
-        res.status(200).render('payment', { result: result.data });
+      if (result?.data.code == 100) {
+        const order = await this.orderService.createOrder(
+          tourId,
+          userId,
+          numPrice,
+          result
+        );
+        console.log(order);
+
+        res.status(200).render('payment', { result: order });
       } else {
-        res.status(200).render('payment', { result: 'payment is faild' });
+        const reviews = await this.reviewQuery.getAllReviewByTourId(tourId);
+        const tour = await this.tourQuery.findTourById(tourId);
+        res
+          .status(200)
+          .render('tour', { title: 'tour page', tour: tour, reviews: reviews });
+        // console.log(result)
       }
     }
   );
   getOverview = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const title = 'Over View page';
       const tours = await this.tourQuery.getAllTour();
-      res.status(200).render('overview', { title: title, tours: tours });
+      res.status(200).render('overview', { title: 'main page', tours: tours });
     }
   );
 }

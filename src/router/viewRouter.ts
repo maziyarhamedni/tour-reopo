@@ -15,7 +15,7 @@ viewRouter.get(
   '/tour/:id',authorize.isLoggedIn,viewControl.getTour
 );
 viewRouter.get('/login',authorize.isLoggedIn,viewControl.getLoginform)
-viewRouter.get('/payment/:tourId/:userId/:count',authorize.protect,viewControl.getAccount)
+viewRouter.get('/payment/:tourId/:userId/:count',authorize.protect,viewControl.paymentResult)
 
 
 
