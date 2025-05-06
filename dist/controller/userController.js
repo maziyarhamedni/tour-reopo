@@ -18,13 +18,16 @@ class userController {
             return sendedUser;
         };
         this.deleteUser = (0, catchAsync_1.default)(async (req, res, next) => {
-            const id = req.params.id;
-            const isDeleteUser = await this.service.deleteUserService(id);
-            if (!isDeleteUser) {
-                return next(new AppError_1.default('cant delete user', 404));
+            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
+            if (user) {
+                const id = req.params.id;
+                const isDeleteUser = await this.service.deleteUserService(id);
+                if (!isDeleteUser) {
+                    return next(new AppError_1.default('cant delete user', 404));
+                }
+                const userWithOrder = Object.assign(Object.assign({}, isDeleteUser), { order: [], expiredTime: new Date(), resetPassword: '' });
+                this.createJwtToken(userWithOrder, 204, res);
             }
-            const userWithOrder = Object.assign(Object.assign({}, isDeleteUser), { order: [], expiredTime: new Date(), resetPassword: '' });
-            this.createJwtToken(userWithOrder, 204, res);
         });
         this.getAllUsers = (0, catchAsync_1.default)(async (req, res, next) => {
             const users = await this.service.getAllUser();
@@ -36,15 +39,15 @@ class userController {
             }
         });
         this.getUser = (0, catchAsync_1.default)(async (req, res, next) => {
-            const user = await this.service.getUser(req.params.id, req.user);
+            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
             if (!user) {
                 return next(new AppError_1.default('cant get users', 404));
             }
             const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
             this.snedResponse(200, userWithOrder, res);
         });
-        this.updateUser = (0, catchAsync_1.default)(async (req, res) => {
-            // const id = req.params.id;
+        this.updateUser = (0, catchAsync_1.default)(async (req, res, next) => {
+            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
             console.log(req.file);
             // console.log(req.body);
             res.json(req.body);

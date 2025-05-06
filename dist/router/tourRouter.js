@@ -12,25 +12,25 @@ const authcontrol = new authController_1.default();
 tourRouter
     .route('/')
     .get(controller.getAllTours)
-    .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.createTour);
+    .post(authcontrol.protect, authcontrol.accessRoleIs('ADMIN', 'TOURLEADER'), controller.createTour);
 // tourRouter
 //   .route('/tours-within/:distance/center/:latlng/unit/:unit')
 //   .get(controller.tourWhitn);
 tourRouter
     .route('/:id')
     .get(authcontrol.protect, controller.getTour)
-    .patch(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.updateTour)
-    .delete(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.deleteTour);
+    .patch(authcontrol.protect, authcontrol.accessRoleIs('ADMIN', 'TOURLEADER'), controller.updateTour)
+    .delete(authcontrol.protect, authcontrol.accessRoleIs('ADMIN', 'TOURLEADER'), controller.deleteTour);
 // tourRouter.route('/:id/card').post(
 //   authcontrol.protect,
 // )
 tourRouter
     .route('/:id/startLocation')
-    .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.addStartLoc);
+    .post(authcontrol.protect, authcontrol.accessRoleIs('ADMIN', 'TOURLEADER'), controller.addStartLoc);
 tourRouter
     .route('/:id/addLocation')
-    .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN', 'TOURLEADER'), controller.addLoc);
+    .post(authcontrol.protect, authcontrol.accessRoleIs('ADMIN', 'TOURLEADER'), controller.addLoc);
 tourRouter
     .route('/:id/addTourGuider')
-    .post(authcontrol.protect, authcontrol.authorizeAdmin('ADMIN'), controller.addTourGuides);
+    .post(authcontrol.protect, authcontrol.accessRoleIs('ADMIN'), controller.addTourGuides);
 exports.default = tourRouter;

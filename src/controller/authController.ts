@@ -8,6 +8,7 @@ import {
   UserSafeInfo,
 } from './../utils/express';
 import authService from '../service/authService';
+import { SrvRecord } from 'dns';
 
 class authController {
   secret: string;
@@ -93,7 +94,7 @@ class authController {
     async (req: Request, res: Response, next: NextFunction) => {
       let token: string;
 
-      // console.log(req.cookies.jwt);
+    
 
       if (typeof req.headers.authorization == 'string') {
         const authorizaton = req.headers.authorization;
@@ -234,6 +235,7 @@ class authController {
       this.createJwtToken(userWithOrder, 200, res);
     }
   );
+
 
   accessRoleIs = (...roles: any) => {
     return async (req: Request, res: Response, next: NextFunction) => {

@@ -28,7 +28,7 @@ class authService {
 
   checkSignUp = async (data: NewUser) => {
     if (data.password == data.passwordConfrim) {
-      console.log('pass and confrim pass correct');
+  
       const newUser = await this.userQuery.CreateNewUser(data);
       return newUser;
     } else {
@@ -81,18 +81,13 @@ class authService {
     return user;
   };
 
+
   resetPasswordService = async (resetToken: string, password: string,id:string) => {
     const result = await this.userQuery.isTokenMatchWithRedis(resetToken,id)
-
-
-    
     const user = await this.userQuery.findUserById(id);
     if (!user || !result) return false;
-
     const pass = await this.userQuery.hashPassword(password);
     await this.userQuery.updateUser(user.email, {
-      resetPassword: '',
-      expiredTime: '',
       password: pass,
     });
 
@@ -146,7 +141,7 @@ class authService {
     return res;
   };
 
-  getUser = async (id: string, user: NewUser) => {
+  accessOnlyOwnUserAndAdmin = async (id: string, user: NewUser) => {
     const getUser = await this.userQuery.findUserById(id);
     if (getUser) {
       if (user.role == 'ADMIN' || getUser.id == user.id) {

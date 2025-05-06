@@ -19,7 +19,7 @@ class OrderService {
     const tour = await this.tourQuery.findTourById(tourid);
     if (tour) {
       const count = tour?.price / price;
-      console.log(`tour price is ${tour.price} and user paid ${price}`);
+      
       const order = await this.orderQuery.addOrderToUser(
         userid,
         tourid,

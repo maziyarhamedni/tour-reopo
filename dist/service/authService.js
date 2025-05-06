@@ -23,9 +23,6 @@ class authService {
                 return false;
             }
         };
-        this.getUserOrders = async (userId) => {
-            // const orders = await this.orderQuery.findOrderByUserId(userId)
-        };
         this.checkLogIn = async (email, password) => {
             const user = await this.userQuery.findUserByEmail(email);
             if (!user || !(await this.checkUserPassword(password, user.password))) {
@@ -68,8 +65,6 @@ class authService {
                 return false;
             const pass = await this.userQuery.hashPassword(password);
             await this.userQuery.updateUser(user.email, {
-                resetPassword: '',
-                expiredTime: '',
                 password: pass,
             });
             return user;
@@ -107,7 +102,7 @@ class authService {
             const res = this.correctPassword(interedPass, userPass);
             return res;
         };
-        this.getUser = async (id, user) => {
+        this.accessOnlyOwnUserAndAdmin = async (id, user) => {
             const getUser = await this.userQuery.findUserById(id);
             if (getUser) {
                 if (user.role == 'ADMIN' || getUser.id == user.id) {

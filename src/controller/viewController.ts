@@ -93,7 +93,7 @@ class viewController {
         res
           .status(200)
           .render('tour', { title: 'tour page', tour: tour, reviews: reviews });
-        // console.log(result)
+       
       }
     }
   );

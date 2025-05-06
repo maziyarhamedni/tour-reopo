@@ -11,7 +11,7 @@ class TourQuery {
   }
 
   createTour = async (data: Tour) => {
-    // console.log(data);
+   
     const newTour = await this.repository.tour.create({
       data: {
         name: data.name,
@@ -35,7 +35,7 @@ class TourQuery {
   };
 
   createStartLocation = async (data: StartLocation) => {
-    console.log(data.coordinates);
+   
     const newStartLoc = await this.repository.tour.update({
       where: { id: data.tourId }, // Specify the tour you want to update
       data: {

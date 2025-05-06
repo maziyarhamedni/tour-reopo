@@ -23,8 +23,8 @@ userRouter
   .get(authorize.accessRoleIs('ADMIN'), userControl.getAllUsers);
 userRouter
   .route('/:id')
-  .get(authorize.accessRoleIs('ADMIN', 'USER'), userControl.getUser)
+  .get( userControl.getUser)
   .patch(upload.single('photo'), userControl.updateUser)
-  .delete(authorize.accessRoleIs('ADMIN', 'USER'), userControl.deleteUser);
+  .delete( userControl.deleteUser);
 
 export default userRouter;

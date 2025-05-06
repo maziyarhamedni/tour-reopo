@@ -20,7 +20,6 @@ class UserQuery {
 
   CreateNewUser = async (userInfo: NewUser) => {
     const pass = await this.hashPassword(userInfo.password);
-    const date = Date.now().toString();
     const newUser = await this.repository.user.create({
       data: {
         name: userInfo.name,
@@ -63,12 +62,14 @@ class UserQuery {
 
   getAllUser = async () => {
     const allUser = await this.repository.user.findMany({
-      where: {
-        isActive: true,
-      },
+     omit:{
+        password:true,
+        passwordChengeAt:true,
+      
+      }
     });
 
-    console.log(allUser);
+
     return allUser ? allUser : false;
   };
   updateUser = async (userEmail: string, data: {}) => {

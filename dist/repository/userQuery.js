@@ -15,7 +15,6 @@ class UserQuery {
         };
         this.CreateNewUser = async (userInfo) => {
             const pass = await this.hashPassword(userInfo.password);
-            const date = Date.now().toString();
             const newUser = await this.repository.user.create({
                 data: {
                     name: userInfo.name,

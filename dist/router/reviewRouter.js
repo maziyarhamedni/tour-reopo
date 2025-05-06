@@ -17,10 +17,10 @@ reviewRouter.use(authorize.protect);
 reviewRouter
     .route('/:tourId')
     .get(reviewControlerObj.getAll)
-    .post(authorize.authorizeAdmin('USER'), reviewControlerObj.setTourUserIds, reviewControlerObj.createOne);
+    .post(authorize.accessRoleIs('USER'), reviewControlerObj.setTourUserIds, reviewControlerObj.createOne);
 reviewRouter
     .route('/s1/:id')
-    .patch(authorize.authorizeAdmin('USER', 'ADMIN'), reviewControlerObj.updateOne)
+    .patch(authorize.accessRoleIs('USER', 'ADMIN'), reviewControlerObj.updateOne)
     .get(reviewControlerObj.getReview)
-    .delete(authorize.authorizeAdmin('USER', 'ADMIN'), reviewControlerObj.deleteOne);
+    .delete(authorize.accessRoleIs('USER', 'ADMIN'), reviewControlerObj.deleteOne);
 module.exports = reviewRouter;

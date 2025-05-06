@@ -40,22 +40,27 @@ class authController {
         });
         this.protect = (0, catchAsync_1.default)(async (req, res, next) => {
             let token;
+            // console.log(req.cookies.jwt);
             if (typeof req.headers.authorization == 'string') {
                 const authorizaton = req.headers.authorization;
                 if (authorizaton && authorizaton.startsWith('Bearer')) {
                     token = authorizaton.split(' ')[1];
                 }
                 else {
-                    token = req.cookies.jwt;
-                    console.log(req.cookies.jwt);
+                    token = await req.cookies.jwt;
                 }
-                const decode = await this.service.jwtVerifyPromisified(token, this.secret);
-                const user = await this.service.findUserIdAndPassChangeRecently(decode.id, decode.iat);
-                if (!decode.id || !user) {
-                    return next(new AppError_1.default('user in not exists anymore ', 404));
-                }
-                req.user = user;
             }
+            else {
+                token = await req.cookies.jwt;
+            }
+            const decode = await this.service.jwtVerifyPromisified(token, this.secret);
+            const user = await this.service.findUserIdAndPassChangeRecently(decode.id, decode.iat);
+            if (!decode.id || !user) {
+                return next(new AppError_1.default('user in not exists anymore ', 404));
+            }
+            const userWithOrder = Object.assign(Object.assign({}, user), { order: [] });
+            const safeUser = this.setUserInfoSafe(userWithOrder);
+            req.user = safeUser;
             next();
         });
         this.isLoggedIn = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -108,7 +113,7 @@ class authController {
             const password = req.body.password;
             const user = await this.service.resetPasswordService(token, password, userId);
             if (user) {
-                const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
+                const userWithOrder = Object.assign(Object.assign({}, user), { order: [] });
                 this.createJwtToken(userWithOrder, 201, res);
             }
         });
@@ -123,7 +128,7 @@ class authController {
             const userWithOrder = Object.assign(Object.assign({}, result), { order: [], expiredTime: new Date(), resetPassword: '' });
             this.createJwtToken(userWithOrder, 200, res);
         });
-        this.authorizeAdmin = (...roles) => {
+        this.accessRoleIs = (...roles) => {
             return async (req, res, next) => {
                 const curentUser = req.user;
                 const user = await this.service.checkUserRole(curentUser.id, roles);

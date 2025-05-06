@@ -15,5 +15,5 @@ const orderControl = new orderController_1.default();
 viewRouter.get('/', authorize.isLoggedIn, viewControl.getOverview);
 viewRouter.get('/tour/:id', authorize.isLoggedIn, viewControl.getTour);
 viewRouter.get('/login', authorize.isLoggedIn, viewControl.getLoginform);
-viewRouter.get('/payment/:tourId/:userId/:count', authorize.protect, viewControl.paymentResult);
+viewRouter.get('/payment/:tourId/:userId/:count', viewControl.paymentResult);
 exports.default = viewRouter;

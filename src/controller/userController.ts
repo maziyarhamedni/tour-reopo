@@ -53,19 +53,25 @@ class userController {
 
   deleteUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const id = req.params.id;
-      const isDeleteUser = await this.service.deleteUserService(id);
+      const user = await this.service.accessOnlyOwnUserAndAdmin(
+        req.params.id,
+        req.user
+      );
+      if (user) {
+        const id = req.params.id;
+        const isDeleteUser = await this.service.deleteUserService(id);
 
-      if (!isDeleteUser) {
-        return next(new AppError('cant delete user', 404));
+        if (!isDeleteUser) {
+          return next(new AppError('cant delete user', 404));
+        }
+        const userWithOrder = {
+          ...isDeleteUser,
+          order: [],
+          expiredTime: new Date(),
+          resetPassword: '',
+        };
+        this.createJwtToken(userWithOrder, 204, res);
       }
-      const userWithOrder = {
-        ...isDeleteUser,
-        order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
-      };
-      this.createJwtToken(userWithOrder, 204, res);
     }
   );
 
@@ -83,7 +89,10 @@ class userController {
 
   getUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const user = await this.service.getUser(req.params.id, req.user);
+      const user = await this.service.accessOnlyOwnUserAndAdmin(
+        req.params.id,
+        req.user
+      );
       if (!user) {
         return next(new AppError('cant get users', 404));
       }
@@ -97,14 +106,18 @@ class userController {
     }
   );
 
+  updateUser = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const user = await this.service.accessOnlyOwnUserAndAdmin(
+        req.params.id,
+        req.user 
+      );
+      console.log(req.file);
+    
+      res.json(req.body);
+    }
+  );
   
-
-  updateUser = catchAsync(async (req: Request, res: Response) => {
-    // const id = req.params.id;
-    console.log(req.file);
-    // console.log(req.body);
-    res.json(req.body);
-  });
 }
 
 export default userController;
