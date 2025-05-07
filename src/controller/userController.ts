@@ -7,8 +7,8 @@ import { NewUser, UserSafeInfo } from '../utils/express';
 class userController {
   secret: string;
   cookieExpire: number;
-  service;
-  dayInMiliSecond;
+  service:authService;
+  dayInMiliSecond:number;
 
   constructor() {
     this.secret = process.env.JWT_SECRET!;
@@ -67,10 +67,13 @@ class userController {
         const userWithOrder = {
           ...isDeleteUser,
           order: [],
-          expiredTime: new Date(),
-          resetPassword: '',
+         
         };
-        this.createJwtToken(userWithOrder, 204, res);
+        res
+          .status(200)
+          .send(
+            `user with namd ${userWithOrder.name} and id ${userWithOrder.id} is unactived ...`
+          );
       }
     }
   );
@@ -94,13 +97,12 @@ class userController {
         req.user
       );
       if (!user) {
-        return next(new AppError('cant get users', 404));
+        return next(new AppError('you cant get other user info', 403));
       }
       const userWithOrder = {
         ...user,
         order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
+       
       };
       this.snedResponse(200, userWithOrder, res);
     }
@@ -110,14 +112,18 @@ class userController {
     async (req: Request, res: Response, next: NextFunction) => {
       const user = await this.service.accessOnlyOwnUserAndAdmin(
         req.params.id,
-        req.user 
+        req.user
       );
+      if (!user) {
+        return next(
+          new AppError('you cannot access to other user update ', 403)
+        );
+      }
       console.log(req.file);
-    
+
       res.json(req.body);
     }
   );
-  
 }
 
 export default userController;
