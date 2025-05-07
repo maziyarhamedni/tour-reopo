@@ -15,7 +15,6 @@ class authService {
         };
         this.checkSignUp = async (data) => {
             if (data.password == data.passwordConfrim) {
-                console.log('pass and confrim pass correct');
                 const newUser = await this.userQuery.CreateNewUser(data);
                 return newUser;
             }
@@ -48,6 +47,10 @@ class authService {
             else {
                 return { resetToken, user };
             }
+        };
+        this.updateMe = async (email, data) => {
+            await this.userQuery.updateUser(email, data);
+            return true;
         };
         this.findUserIdAndPassChangeRecently = async (id, iat) => {
             const user = await this.userQuery.findUserById(id);
@@ -106,7 +109,8 @@ class authService {
             const getUser = await this.userQuery.findUserById(id);
             if (getUser) {
                 if (user.role == 'ADMIN' || getUser.id == user.id) {
-                    return getUser;
+                    const userWithOrder = Object.assign(Object.assign({}, user), { order: [] });
+                    return userWithOrder;
                 }
                 return false;
             }

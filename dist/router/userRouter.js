@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const authController_1 = __importDefault(require("../controller/authController"));
 const multer_1 = __importDefault(require("multer"));
 const userController_1 = __importDefault(require("../controller/userController"));
-const upload = (0, multer_1.default)({ dest: 'public/imag/users' });
+const upload = (0, multer_1.default)({ dest: 'public/img/users/' });
 const userRouter = express_1.default.Router();
 const authorize = new authController_1.default();
 const userControl = new userController_1.default();
@@ -23,6 +23,6 @@ userRouter
 userRouter
     .route('/:id')
     .get(userControl.getUser)
-    .patch(upload.single('photo'), userControl.updateUser)
+    .patch(userControl.uploadUserPhoto, userControl.resizePhoto, userControl.updateUser)
     .delete(userControl.deleteUser);
 exports.default = userRouter;

@@ -52,11 +52,11 @@ class UserQuery {
         };
         this.getAllUser = async () => {
             const allUser = await this.repository.user.findMany({
-                where: {
-                    isActive: true,
-                },
+                omit: {
+                    password: true,
+                    passwordChengeAt: true,
+                }
             });
-            console.log(allUser);
             return allUser ? allUser : false;
         };
         this.updateUser = async (userEmail, data) => {

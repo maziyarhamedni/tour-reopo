@@ -40,7 +40,6 @@ class authController {
         });
         this.protect = (0, catchAsync_1.default)(async (req, res, next) => {
             let token;
-            // console.log(req.cookies.jwt);
             if (typeof req.headers.authorization == 'string') {
                 const authorizaton = req.headers.authorization;
                 if (authorizaton && authorizaton.startsWith('Bearer')) {

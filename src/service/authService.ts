@@ -68,6 +68,15 @@ class authService {
     }
   };
  
+  updateMe = async(email:string,data:{name?:string,lastName?:string})=>{
+
+   await this.userQuery.updateUser(email,data)
+
+   return true;
+
+
+    
+  }
   findUserIdAndPassChangeRecently = async (id: string, iat: number) => {
     const user = await this.userQuery.findUserById(id);
 
@@ -145,7 +154,11 @@ class authService {
     const getUser = await this.userQuery.findUserById(id);
     if (getUser) {
       if (user.role == 'ADMIN' || getUser.id == user.id) {
-        return getUser;
+        const userWithOrder = {
+          ...user,
+          order: [],
+        };
+        return userWithOrder;
       }
       return false;
     }

@@ -6,7 +6,6 @@ const repository_1 = __importDefault(require("./repository"));
 class TourQuery {
     constructor() {
         this.createTour = async (data) => {
-            // console.log(data);
             const newTour = await this.repository.tour.create({
                 data: {
                     name: data.name,
@@ -29,7 +28,6 @@ class TourQuery {
             return newTour;
         };
         this.createStartLocation = async (data) => {
-            console.log(data.coordinates);
             const newStartLoc = await this.repository.tour.update({
                 where: { id: data.tourId }, // Specify the tour you want to update
                 data: {

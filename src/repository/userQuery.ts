@@ -73,13 +73,14 @@ class UserQuery {
     return allUser ? allUser : false;
   };
   updateUser = async (userEmail: string, data: {}) => {
-    await this.repository.user.update({
+      await this.repository.user.update({
       where: {
         email: userEmail,
         isActive: true,
       },
       data,
     });
+    
   };
 
   saveResetTokenOnRedis = async (userId: string, token: string) => {

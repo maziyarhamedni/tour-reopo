@@ -3,7 +3,7 @@ import authController from '../controller/authController';
 import multer from 'multer';
 import userController from '../controller/userController';
 
-const upload = multer({ dest: 'public/imag/users' });
+const upload = multer({ dest: 'public/img/users/' });
 const userRouter = express.Router();
 const authorize = new authController();
 const userControl = new userController();
@@ -24,7 +24,7 @@ userRouter
 userRouter
   .route('/:id')
   .get( userControl.getUser)
-  .patch(upload.single('photo'), userControl.updateUser)
+  .patch(userControl.uploadUserPhoto,userControl.resizePhoto,userControl.updateUser)
   .delete( userControl.deleteUser);
 
 export default userRouter;

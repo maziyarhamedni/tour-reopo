@@ -2,29 +2,45 @@ import { NextFunction, Request, Response } from 'express';
 import AppError from '../utils/AppError';
 import catchAsync from '../utils/catchAsync';
 import authService from '../service/authService';
+import multer from 'multer';
 import { NewUser, UserSafeInfo } from '../utils/express';
+import sharp from 'sharp';
 
 class userController {
   secret: string;
   cookieExpire: number;
   service: authService;
   dayInMiliSecond: number;
+  upload;
+  multerStorage;
+  uploadUserPhoto;
 
   constructor() {
     this.secret = process.env.JWT_SECRET!;
     this.cookieExpire = parseInt(process.env.JWT_COOKIE_EXPIRSE_IN!);
+    this.multerStorage = multer.memoryStorage();
     this.dayInMiliSecond = parseInt(process.env.DAY_IN_MILISECOND!);
     this.service = new authService();
+    this.upload = multer({
+      storage: this.multerStorage,
+      fileFilter: this.multerFilter,
+    });
+    this.uploadUserPhoto = this.upload.single('photo');
   }
 
- 
+  multerFilter = (req: Request, file: any, cb: Function) => {
+    if (file.mimetype.startsWith('image')) {
+      cb(null, true);
+    } else {
+      cb(new AppError('not an image file , please upload image ', 400), false);
+    }
+  };
+
   setUserInfoSafe = (user: NewUser): UserSafeInfo => {
     const { email, id, lastName, photo, name, role } = user;
     const sendedUser = { email, id, lastName, photo, name, role };
     return sendedUser;
   };
-
-  
 
   deleteUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -39,14 +55,11 @@ class userController {
         if (!isDeleteUser) {
           return next(new AppError('cant delete user', 404));
         }
-        const userWithOrder = {
-          ...isDeleteUser,
-          order: [],
-        };
+
         res
           .status(204)
           .send(
-            `user with namd ${userWithOrder.name} and id ${userWithOrder.id} is unactived ...`
+            `user with namd ${isDeleteUser.name} and id ${isDeleteUser.id} is unactived ...`
           );
       }
     }
@@ -63,6 +76,23 @@ class userController {
       }
     }
   );
+  resizePhoto = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      if (!req.file) {
+        return next();
+      }
+
+      req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+      await sharp(req.file.buffer)
+        .resize(500, 500)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/${req.file.filename}`);
+
+      next();
+    }
+  );
 
   getUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -73,12 +103,9 @@ class userController {
       if (!user) {
         return next(new AppError('you cant get other user info', 403));
       }
-      const userWithOrder = {
-        ...user,
-        order: [],
-      };
-      const safeUser = this.setUserInfoSafe(userWithOrder)
-    
+
+      const safeUser = this.setUserInfoSafe(user);
+
       res.status(200).json({
         status: 'successful',
         safeUser,
@@ -97,9 +124,15 @@ class userController {
           new AppError('you cannot access to other user update ', 403)
         );
       }
-      console.log(req.file);
 
-      res.json(req.body);
+      const { lastName, name } = req.body;
+
+      this.service.updateMe(user.email, { name, lastName });
+      res.status(200).json({
+        status: 'successful',
+        lastName,
+        name,
+      });
     }
   );
 }

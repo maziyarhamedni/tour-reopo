@@ -58,7 +58,7 @@ class orderController {
                 res.status(200).json(orders);
             }
             else {
-                console.log('this is not order yet [] ');
+                res.status(200).json({ order: [] });
             }
         });
         this.sendPaymentRequest = async (tourId, userId) => {

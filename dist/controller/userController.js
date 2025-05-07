@@ -6,11 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const AppError_1 = __importDefault(require("../utils/AppError"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const authService_1 = __importDefault(require("../service/authService"));
+const multer_1 = __importDefault(require("multer"));
+const sharp_1 = __importDefault(require("sharp"));
 class userController {
     constructor() {
-        this.snedResponse = (statusCode, data, res) => {
-            const user = this.setUserInfoSafe(data);
-            res.status(statusCode).json(user);
+        this.multerFilter = (req, file, cb) => {
+            if (file.mimetype.startsWith('image')) {
+                cb(null, true);
+            }
+            else {
+                cb(new AppError_1.default('not an image file , please upload image ', 400), false);
+            }
         };
         this.setUserInfoSafe = (user) => {
             const { email, id, lastName, photo, name, role } = user;
@@ -25,8 +31,9 @@ class userController {
                 if (!isDeleteUser) {
                     return next(new AppError_1.default('cant delete user', 404));
                 }
-                const userWithOrder = Object.assign(Object.assign({}, isDeleteUser), { order: [], expiredTime: new Date(), resetPassword: '' });
-                this.createJwtToken(userWithOrder, 204, res);
+                res
+                    .status(204)
+                    .send(`user with namd ${isDeleteUser.name} and id ${isDeleteUser.id} is unactived ...`);
             }
         });
         this.getAllUsers = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -38,44 +45,52 @@ class userController {
                 });
             }
         });
+        this.resizePhoto = (0, catchAsync_1.default)(async (req, res, next) => {
+            if (!req.file) {
+                return next();
+            }
+            req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+            await (0, sharp_1.default)(req.file.buffer)
+                .resize(500, 500)
+                .toFormat('jpeg')
+                .jpeg({ quality: 90 })
+                .toFile(`public/img/${req.file.filename}`);
+            next();
+        });
         this.getUser = (0, catchAsync_1.default)(async (req, res, next) => {
             const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
             if (!user) {
-                return next(new AppError_1.default('cant get users', 404));
+                return next(new AppError_1.default('you cant get other user info', 403));
             }
-            const userWithOrder = Object.assign(Object.assign({}, user), { order: [], expiredTime: new Date(), resetPassword: '' });
-            this.snedResponse(200, userWithOrder, res);
+            const safeUser = this.setUserInfoSafe(user);
+            res.status(200).json({
+                status: 'successful',
+                safeUser,
+            });
         });
         this.updateUser = (0, catchAsync_1.default)(async (req, res, next) => {
             const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
-            console.log(req.file);
-            // console.log(req.body);
-            res.json(req.body);
+            if (!user) {
+                return next(new AppError_1.default('you cannot access to other user update ', 403));
+            }
+            const { lastName, name } = req.body;
+            this.service.updateMe(user.email, { name, lastName });
+            res.status(200).json({
+                status: 'successful',
+                lastName,
+                name,
+            });
         });
         this.secret = process.env.JWT_SECRET;
         this.cookieExpire = parseInt(process.env.JWT_COOKIE_EXPIRSE_IN);
+        this.multerStorage = multer_1.default.memoryStorage();
         this.dayInMiliSecond = parseInt(process.env.DAY_IN_MILISECOND);
         this.service = new authService_1.default();
-    }
-    createJwtToken(user, statusCode, res) {
-        const sendedUser = this.setUserInfoSafe(user);
-        const token = this.service.jwtTokenCreator(user.id, this.secret);
-        const cookieOption = {
-            expires: new Date(Date.now() + this.cookieExpire * this.dayInMiliSecond),
-            secure: false,
-            httpOnly: true,
-        };
-        if (process.env.NODE_ENV == 'production') {
-            cookieOption.secure = true;
-        }
-        res.cookie('jwt', token, cookieOption);
-        res.status(statusCode).json({
-            status: 'seccessful',
-            token: token,
-            data: {
-                sendedUser,
-            },
+        this.upload = (0, multer_1.default)({
+            storage: this.multerStorage,
+            fileFilter: this.multerFilter,
         });
+        this.uploadUserPhoto = this.upload.single('photo');
     }
 }
 exports.default = userController;

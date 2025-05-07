@@ -11,7 +11,6 @@ class OrderService {
             const tour = await this.tourQuery.findTourById(tourid);
             if (tour) {
                 const count = (tour === null || tour === void 0 ? void 0 : tour.price) / price;
-                console.log(`tour price is ${tour.price} and user paid ${price}`);
                 const order = await this.orderQuery.addOrderToUser(userid, tourid, count, tour.startDates[0], data);
                 //delete tedatourda karbar
                 const group = tour.maxGroupSize - count;
