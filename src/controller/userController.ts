@@ -7,8 +7,8 @@ import { NewUser, UserSafeInfo } from '../utils/express';
 class userController {
   secret: string;
   cookieExpire: number;
-  service:authService;
-  dayInMiliSecond:number;
+  service: authService;
+  dayInMiliSecond: number;
 
   constructor() {
     this.secret = process.env.JWT_SECRET!;
@@ -17,39 +17,14 @@ class userController {
     this.service = new authService();
   }
 
-  snedResponse = (statusCode: number, data: NewUser, res: Response) => {
-    const user = this.setUserInfoSafe(data);
-    res.status(statusCode).json(user);
-  };
-
+ 
   setUserInfoSafe = (user: NewUser): UserSafeInfo => {
     const { email, id, lastName, photo, name, role } = user;
     const sendedUser = { email, id, lastName, photo, name, role };
     return sendedUser;
   };
 
-  createJwtToken(user: NewUser, statusCode: number, res: Response) {
-    const sendedUser = this.setUserInfoSafe(user);
-    const token = this.service.jwtTokenCreator(user.id, this.secret);
-    const cookieOption = {
-      expires: new Date(Date.now() + this.cookieExpire * this.dayInMiliSecond),
-      secure: false,
-      httpOnly: true,
-    };
-
-    if (process.env.NODE_ENV == 'production') {
-      cookieOption.secure = true;
-    }
-    res.cookie('jwt', token, cookieOption);
-
-    res.status(statusCode).json({
-      status: 'seccessful',
-      token: token,
-      data: {
-        sendedUser,
-      },
-    });
-  }
+  
 
   deleteUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -67,10 +42,9 @@ class userController {
         const userWithOrder = {
           ...isDeleteUser,
           order: [],
-         
         };
         res
-          .status(200)
+          .status(204)
           .send(
             `user with namd ${userWithOrder.name} and id ${userWithOrder.id} is unactived ...`
           );
@@ -102,9 +76,13 @@ class userController {
       const userWithOrder = {
         ...user,
         order: [],
-       
       };
-      this.snedResponse(200, userWithOrder, res);
+      const safeUser = this.setUserInfoSafe(userWithOrder)
+    
+      res.status(200).json({
+        status: 'successful',
+        safeUser,
+      });
     }
   );
 
