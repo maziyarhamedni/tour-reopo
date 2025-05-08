@@ -54,7 +54,7 @@ class userController {
                 .resize(500, 500)
                 .toFormat('jpeg')
                 .jpeg({ quality: 90 })
-                .toFile(`public/img/${req.file.filename}`);
+                .toFile(`public/img/users/${req.file.filename}`);
             next();
         });
         this.getUser = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -69,16 +69,19 @@ class userController {
             });
         });
         this.updateUser = (0, catchAsync_1.default)(async (req, res, next) => {
+            var _a;
+            const photo = (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename;
             const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
             if (!user) {
                 return next(new AppError_1.default('you cannot access to other user update ', 403));
             }
             const { lastName, name } = req.body;
-            this.service.updateMe(user.email, { name, lastName });
+            this.service.updateMe(user.email, { name, lastName, photo });
             res.status(200).json({
                 status: 'successful',
                 lastName,
                 name,
+                photo
             });
         });
         this.secret = process.env.JWT_SECRET;

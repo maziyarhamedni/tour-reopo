@@ -68,8 +68,6 @@ class UserQuery {
       
       }
     });
-
-
     return allUser ? allUser : false;
   };
   updateUser = async (userEmail: string, data: {}) => {

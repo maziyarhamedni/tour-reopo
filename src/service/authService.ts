@@ -5,17 +5,14 @@ import sendEmail from './../utils/email';
 import { EmailOption } from '../utils/express';
 import bcryptjs from 'bcryptjs';
 import redis from '../repository/redisClient';
-import OrderQuery from '../repository/orderQuery';
- 
 
 class authService {
   userQuery;
-  redis
-  
+  redis;
 
   constructor() {
     this.userQuery = new UserQuery();
-    this.redis = redis
+    this.redis = redis;
   }
 
   jwtTokenCreator(id: any, secret: string) {
@@ -28,15 +25,12 @@ class authService {
 
   checkSignUp = async (data: NewUser) => {
     if (data.password == data.passwordConfrim) {
-  
       const newUser = await this.userQuery.CreateNewUser(data);
       return newUser;
     } else {
       return false;
     }
   };
-
- 
 
   checkLogIn = async (email: string, password: string) => {
     const user = await this.userQuery.findUserByEmail(email);
@@ -67,32 +61,35 @@ class authService {
       return { resetToken, user };
     }
   };
- 
-  updateMe = async(email:string,data:{name?:string,lastName?:string})=>{
 
-   await this.userQuery.updateUser(email,data)
+  updateMe = async (
+    email: string,
+    data: { name?: string; lastName?: string; photo?: string }
+  ) => {
+    await this.userQuery.updateUser(email, data);
 
-   return true;
-
-
-    
-  }
+    return true;
+  };
   findUserIdAndPassChangeRecently = async (id: string, iat: number) => {
+
+   
     const user = await this.userQuery.findUserById(id);
 
     if (!user) return false;
-    const passwordChengeRecently = await this.isPassChengeRecently(
+    const passwordChengeRecently = await this.isPassChengeAfterCookieSet(
       iat,
       user.passwordChengeAt!
     );
-    if (passwordChengeRecently) return false;
 
-    return user;
+    return passwordChengeRecently ? false: user;
   };
 
-
-  resetPasswordService = async (resetToken: string, password: string,id:string) => {
-    const result = await this.userQuery.isTokenMatchWithRedis(resetToken,id)
+  resetPasswordService = async (
+    resetToken: string,
+    password: string,
+    id: string
+  ) => {
+    const result = await this.userQuery.isTokenMatchWithRedis(resetToken, id);
     const user = await this.userQuery.findUserById(id);
     if (!user || !result) return false;
     const pass = await this.userQuery.hashPassword(password);
@@ -102,9 +99,12 @@ class authService {
 
     return user;
   };
-  passwordChenged = async (jwtIat: any, passChenge: Date): Promise<Boolean> => {
+  passwordChengedAfterSetToken = async (jwtIat: any, passChenge: Date): Promise<Boolean> => {
+
     const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
-    return passChengeAt > jwtIat;
+    console.log(` is pass change after setToken ${passChengeAt > jwtIat} `)
+
+    return (passChengeAt > jwtIat);
   };
 
   async correctPassword(password: string, hashedPassword: string | null) {
@@ -140,8 +140,8 @@ class authService {
     }
   };
 
-  isPassChengeRecently = async (tokenTime: any, passChengeDate: Date) => {
-    const res = this.passwordChenged(tokenTime, passChengeDate);
+  isPassChengeAfterCookieSet = async (tokenTime: any, passChengeDate: Date) => {
+    const res = this.passwordChengedAfterSetToken(tokenTime, passChengeDate);
     return res;
   };
 
@@ -155,7 +155,7 @@ class authService {
     if (getUser) {
       if (user.role == 'ADMIN' || getUser.id == user.id) {
         const userWithOrder = {
-          ...user,
+          ...getUser,
           order: [],
         };
         return userWithOrder;

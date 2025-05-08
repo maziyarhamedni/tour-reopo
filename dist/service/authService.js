@@ -56,10 +56,8 @@ class authService {
             const user = await this.userQuery.findUserById(id);
             if (!user)
                 return false;
-            const passwordChengeRecently = await this.isPassChengeRecently(iat, user.passwordChengeAt);
-            if (passwordChengeRecently)
-                return false;
-            return user;
+            const passwordChengeRecently = await this.isPassChengeAfterCookieSet(iat, user.passwordChengeAt);
+            return passwordChengeRecently ? false : user;
         };
         this.resetPasswordService = async (resetToken, password, id) => {
             const result = await this.userQuery.isTokenMatchWithRedis(resetToken, id);
@@ -72,9 +70,10 @@ class authService {
             });
             return user;
         };
-        this.passwordChenged = async (jwtIat, passChenge) => {
+        this.passwordChengedAfterSetToken = async (jwtIat, passChenge) => {
             const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
-            return passChengeAt > jwtIat;
+            console.log(` is pass change after setToken ${passChengeAt > jwtIat} `);
+            return (passChengeAt > jwtIat);
         };
         this.updatePasswordServiced = async (id, oldPassword, newPassword) => {
             const user = await this.userQuery.findUserById(id);
@@ -97,8 +96,8 @@ class authService {
                 return false;
             }
         };
-        this.isPassChengeRecently = async (tokenTime, passChengeDate) => {
-            const res = this.passwordChenged(tokenTime, passChengeDate);
+        this.isPassChengeAfterCookieSet = async (tokenTime, passChengeDate) => {
+            const res = this.passwordChengedAfterSetToken(tokenTime, passChengeDate);
             return res;
         };
         this.checkUserPassword = async (interedPass, userPass) => {
@@ -109,7 +108,7 @@ class authService {
             const getUser = await this.userQuery.findUserById(id);
             if (getUser) {
                 if (user.role == 'ADMIN' || getUser.id == user.id) {
-                    const userWithOrder = Object.assign(Object.assign({}, user), { order: [] });
+                    const userWithOrder = Object.assign(Object.assign({}, getUser), { order: [] });
                     return userWithOrder;
                 }
                 return false;

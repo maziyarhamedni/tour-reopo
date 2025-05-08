@@ -8,7 +8,7 @@ import {
   UserSafeInfo,
 } from './../utils/express';
 import authService from '../service/authService';
-import { SrvRecord } from 'dns';
+
 
 class authController {
   secret: string;
@@ -93,9 +93,6 @@ class authController {
   protect = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       let token: string;
-
-    
-
       if (typeof req.headers.authorization == 'string') {
         const authorizaton = req.headers.authorization;
 
@@ -111,10 +108,9 @@ class authController {
         token,
         this.secret
       );
-      const user = await this.service.findUserIdAndPassChangeRecently(
-        decode.id,
-        decode.iat
-      );
+      const user = await this.service.findUserIdAndPassChangeRecently(decode.id,decode.iat)
+      
+
 
       if (!decode.id || !user) {
         return next(new AppError('user in not exists anymore ', 404));

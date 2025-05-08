@@ -96,6 +96,7 @@ class TourQuery {
             name: true,
             lastName: true,
             role: true,
+            photo:true
           },
         },
       },

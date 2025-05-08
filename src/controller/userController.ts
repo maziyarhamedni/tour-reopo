@@ -88,7 +88,7 @@ class userController {
         .resize(500, 500)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
-        .toFile(`public/img/${req.file.filename}`);
+        .toFile(`public/img/users/${req.file.filename}`);
 
       next();
     }
@@ -115,6 +115,7 @@ class userController {
 
   updateUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
+      const photo = req.file?.filename;
       const user = await this.service.accessOnlyOwnUserAndAdmin(
         req.params.id,
         req.user
@@ -127,11 +128,12 @@ class userController {
 
       const { lastName, name } = req.body;
 
-      this.service.updateMe(user.email, { name, lastName });
+      this.service.updateMe(user.email, { name, lastName, photo });
       res.status(200).json({
         status: 'successful',
         lastName,
         name,
+        photo
       });
     }
   );

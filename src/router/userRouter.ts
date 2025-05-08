@@ -3,7 +3,6 @@ import authController from '../controller/authController';
 import multer from 'multer';
 import userController from '../controller/userController';
 
-const upload = multer({ dest: 'public/img/users/' });
 const userRouter = express.Router();
 const authorize = new authController();
 const userControl = new userController();
