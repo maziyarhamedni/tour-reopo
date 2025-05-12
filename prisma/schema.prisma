@@ -32,19 +32,13 @@ model User {
 }
 
 model Order {
-  id            String   @id @default(uuid())
-  cardHash      String
-  tourTime      DateTime @default(now())
-  userId        String
-  tourId        String
-  transactionId Int      @unique
-  count         Int      @default(1)
-  user          User     @relation("UserOrder", fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  userId String
+  tourId String
+  status orderStatus   @default(pending)
+  user User @relation("UserOrder", fields: [userId], references: [id])
 
-  @@unique([userId, tourId])
 }
-
-
 
 model Review {
   id        String   @id @default(uuid())
@@ -112,6 +106,11 @@ enum Difficulty {
   easy
   medium
   difficult
+}
+
+enum orderStatus {
+  pending
+  paid
 }
 
 enum Role {

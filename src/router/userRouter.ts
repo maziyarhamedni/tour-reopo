@@ -18,10 +18,10 @@ userRouter.patch(
 userRouter.patch('/resetPassword/:token/:userId', authorize.resetPassword);
 userRouter.use(authorize.protect);
 userRouter
-  .route('/')
+  .route('/getAllUser')
   .get(authorize.accessRoleIs('ADMIN'), userControl.getAllUsers);
 userRouter
-  .route('/:id')
+  .route('/userInfo')
   .get( userControl.getUser)
   .patch(userControl.uploadUserPhoto,userControl.resizePhoto,userControl.updateUser)
   .delete( userControl.deleteUser);

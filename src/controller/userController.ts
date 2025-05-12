@@ -44,23 +44,17 @@ class userController {
 
   deleteUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const user = await this.service.accessOnlyOwnUserAndAdmin(
-        req.params.id,
-        req.user
-      );
+      const user = req.user;
+
       if (user) {
-        const id = req.params.id;
+        const id = req.user.id;
         const isDeleteUser = await this.service.deleteUserService(id);
 
         if (!isDeleteUser) {
           return next(new AppError('cant delete user', 404));
         }
 
-        res
-          .status(204)
-          .send(
-            `user with namd ${isDeleteUser.name} and id ${isDeleteUser.id} is unactived ...`
-          );
+        res.status(204).send(`user is unactive ...`);
       }
     }
   );
@@ -96,10 +90,8 @@ class userController {
 
   getUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const user = await this.service.accessOnlyOwnUserAndAdmin(
-        req.params.id,
-        req.user
-      );
+      const user = req.user.id;
+
       if (!user) {
         return next(new AppError('you cant get other user info', 403));
       }
@@ -116,10 +108,8 @@ class userController {
   updateUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const photo = req.file?.filename;
-      const user = await this.service.accessOnlyOwnUserAndAdmin(
-        req.params.id,
-        req.user
-      );
+      const user = req.user;
+
       if (!user) {
         return next(
           new AppError('you cannot access to other user update ', 403)
@@ -133,7 +123,7 @@ class userController {
         status: 'successful',
         lastName,
         name,
-        photo
+        photo,
       });
     }
   );

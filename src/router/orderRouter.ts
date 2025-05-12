@@ -10,6 +10,11 @@ orderRouter
   .post(authorize.protect, orderControl.redirectUserToPayment);
 
 
+  orderRouter
+  .route('/addtomyorder/:tourId')
+  .post(authorize.protect, orderControl.addTourToMyOrder);
+
+  
 
 orderRouter
   .route('/:userId')

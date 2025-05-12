@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { PaymentResponse } from '../utils/express';
 import { connect } from 'http2';
+import { orderStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -13,46 +14,28 @@ class OrderQuery {
     this.prisma = prisma;
   }
 
-  addOrderToUser = async (
-    userid: string,
-    tourid: string,
-    count: number,
-    tourTime:Date,
-    data: PaymentResponse
-  ) => {
-
-
-   const order = await this.order.create({
-     data:{
-      tourId: tourid,
-      tourTime:tourTime,
-      count:count,
-      userId: userid,
-      transactionId: data.data.ref_id,
-      cardHash:data.data.card_hash
-     }
- 
+  addOrderToUser = async (userid: string, tourid: string) => {
+    const order = await this.order.create({
+      data: {
+        tourId: tourid,
+        userId: userid,
+        status: orderStatus.pending,
+      },
+      
     });
-    
 
-    return order?order:false
+    return order ? order : false;
   };
 
-
-
-  findOrderByUserId = async (userid:string)=>{
-      
-
+  findOrderByUserId = async (userid: string) => {
     const orders = await this.order.findMany({
-      where:{
-        userId:userid
-      }
-    })
+      where: {
+        userId: userid,
+      },
+    });
 
-
-    return orders?orders:false
-  }
-
+    return orders ? orders : false;
+  };
 }
 
 export default OrderQuery;

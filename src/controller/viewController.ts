@@ -80,9 +80,7 @@ class viewController {
       if (result?.data.code == 100) {
         const order = await this.orderService.createOrder(
           tourId,
-          userId,
-          numPrice,
-          result
+          userId
         );
      
 

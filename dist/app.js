@@ -13,9 +13,7 @@ const reviewRouter_1 = __importDefault(require("./router/reviewRouter"));
 const errorHandler_1 = __importDefault(require("./controller/errorHandler"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const path_1 = __importDefault(require("path"));
-const viewRouter_1 = __importDefault(require("./router/viewRouter"));
 const orderRouter_1 = __importDefault(require("./router/orderRouter"));
-// import AppError from './utils/AppError';
 const app = (0, express_1.default)();
 app.set('view engine', 'pug');
 app.set('views', path_1.default.join(__dirname, '..', 'views'));
@@ -43,7 +41,6 @@ const limiter = (0, express_rate_limit_1.default)({
 });
 //overview router
 app.use('/api', limiter);
-app.use('/', viewRouter_1.default);
 app.use('/api/v1/tours', tourRouter_1.default);
 app.use('/api/v1/users', userRouter_1.default);
 app.use('/api/v1/reviews', reviewRouter_1.default);

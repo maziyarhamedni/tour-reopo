@@ -49,7 +49,7 @@ class viewController {
                 console.error('Error:', axiosError.response ? axiosError.response.data : axiosError.message);
             }
             if ((result === null || result === void 0 ? void 0 : result.data.code) == 100) {
-                const order = await this.orderService.createOrder(tourId, userId, numPrice, result);
+                const order = await this.orderService.createOrder(tourId, userId);
                 res.status(200).render('payment', { result: order });
             }
             else {

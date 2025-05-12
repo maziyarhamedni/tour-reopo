@@ -9,9 +9,7 @@ import reviewRouter from './router/reviewRouter';
 import errorHandler from './controller/errorHandler';
 import cookiePrser from 'cookie-parser'
 import path from 'path';
-import viewRouter from './router/viewRouter';
 import orderRouter from './router/orderRouter';
-// import AppError from './utils/AppError';
 
 const app = express();
 app.set('view engine', 'pug');
@@ -46,7 +44,6 @@ const limiter = rateLimit({
 
 //overview router
 app.use('/api', limiter)
-app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);

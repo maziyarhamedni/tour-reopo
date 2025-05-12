@@ -52,7 +52,7 @@ class orderController {
             res.send('payment page is loding...');
         });
         this.getOrderByUserId = (0, catchAsync_1.default)(async (req, res, next) => {
-            const userId = req.params.userId;
+            const userId = req.user.id;
             const orders = await this.service.getOrderbyUserId(userId);
             if (orders) {
                 res.status(200).json(orders);
@@ -60,6 +60,11 @@ class orderController {
             else {
                 res.status(200).json({ order: [] });
             }
+        });
+        this.addTourToMyOrder = (0, catchAsync_1.default)(async (req, res, next) => {
+            const user = req.user;
+            const tour = req.params.tourId;
+            this.service.createOrder(tour, user.id);
         });
         this.sendPaymentRequest = async (tourId, userId) => {
             try {

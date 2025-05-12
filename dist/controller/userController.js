@@ -24,16 +24,14 @@ class userController {
             return sendedUser;
         };
         this.deleteUser = (0, catchAsync_1.default)(async (req, res, next) => {
-            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
+            const user = req.user;
             if (user) {
-                const id = req.params.id;
+                const id = req.user.id;
                 const isDeleteUser = await this.service.deleteUserService(id);
                 if (!isDeleteUser) {
                     return next(new AppError_1.default('cant delete user', 404));
                 }
-                res
-                    .status(204)
-                    .send(`user with namd ${isDeleteUser.name} and id ${isDeleteUser.id} is unactived ...`);
+                res.status(204).send(`user is unactive ...`);
             }
         });
         this.getAllUsers = (0, catchAsync_1.default)(async (req, res, next) => {
@@ -58,7 +56,7 @@ class userController {
             next();
         });
         this.getUser = (0, catchAsync_1.default)(async (req, res, next) => {
-            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
+            const user = req.user.id;
             if (!user) {
                 return next(new AppError_1.default('you cant get other user info', 403));
             }
@@ -71,7 +69,7 @@ class userController {
         this.updateUser = (0, catchAsync_1.default)(async (req, res, next) => {
             var _a;
             const photo = (_a = req.file) === null || _a === void 0 ? void 0 : _a.filename;
-            const user = await this.service.accessOnlyOwnUserAndAdmin(req.params.id, req.user);
+            const user = req.user;
             if (!user) {
                 return next(new AppError_1.default('you cannot access to other user update ', 403));
             }
@@ -81,7 +79,7 @@ class userController {
                 status: 'successful',
                 lastName,
                 name,
-                photo
+                photo,
             });
         });
         this.secret = process.env.JWT_SECRET;

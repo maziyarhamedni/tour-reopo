@@ -7,14 +7,10 @@ const orderQuery_1 = __importDefault(require("../repository/orderQuery"));
 const tourQuery_1 = __importDefault(require("../repository/tourQuery"));
 class OrderService {
     constructor() {
-        this.createOrder = async (tourid, userid, price, data) => {
+        this.createOrder = async (tourid, userid) => {
             const tour = await this.tourQuery.findTourById(tourid);
             if (tour) {
-                const count = (tour === null || tour === void 0 ? void 0 : tour.price) / price;
-                const order = await this.orderQuery.addOrderToUser(userid, tourid, count, tour.startDates[0], data);
-                //delete tedatourda karbar
-                const group = tour.maxGroupSize - count;
-                await this.tourQuery.updateTour(tourid, { maxGroupSize: group });
+                const order = await this.orderQuery.addOrderToUser(userid, tourid);
                 return order ? order : false;
             }
         };

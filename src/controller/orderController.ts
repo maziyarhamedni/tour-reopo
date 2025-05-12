@@ -31,7 +31,7 @@ class orderController {
 
   getOrderByUserId = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const userId = req.params.userId;
+      const userId = req.user.id;
       const orders = await this.service.getOrderbyUserId(userId);
 
       if (orders) {
@@ -42,6 +42,12 @@ class orderController {
     }
   );
 
+  addTourToMyOrder = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const user = req.user;
+      const tour = req.params.tourId;
+      this.service.createOrder(tour,user.id)
+    })
   sendPaymentRequest = async (tourId: string, userId: string) => {
     try {
       const response = await axios.post(
