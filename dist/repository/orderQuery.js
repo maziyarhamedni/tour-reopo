@@ -5,7 +5,7 @@ const client_2 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 class OrderQuery {
     constructor() {
-        this.addOrderToUser = async (userid, tourid) => {
+        this.addOrder = async (userid, tourid) => {
             const order = await this.order.create({
                 data: {
                     tourId: tourid,
@@ -22,6 +22,14 @@ class OrderQuery {
                 },
             });
             return orders ? orders : false;
+        };
+        this.findOrderById = async (orderId) => {
+            const order = await this.order.findUnique({
+                where: {
+                    id: orderId,
+                },
+            });
+            return order || false;
         };
         this.order = prisma.order;
         this.prisma = prisma;

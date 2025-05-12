@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Tour" ALTER COLUMN "slug" DROP NOT NULL;

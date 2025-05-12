@@ -7,7 +7,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x"] //
+  binaryTargets   = ["native", "debian-openssl-3.0.x"] 
 }
 
 datasource db {
@@ -31,15 +31,6 @@ model User {
   orders           Order[]  @relation("UserOrder")
 }
 
-model Order {
-  id     String @id @default(uuid())
-  userId String
-  tourId String
-  status orderStatus   @default(pending)
-  user User @relation("UserOrder", fields: [userId], references: [id])
-
-}
-
 model Review {
   id        String   @id @default(uuid())
   review    String
@@ -49,58 +40,83 @@ model Review {
   tourId    String
   user      User     @relation("UserReviews", fields: [userId], references: [id])
   tour      Tour     @relation("TourReviews", fields: [tourId], references: [id])
-
   @@unique([userId, tourId])
 }
 
 model Tour {
-  id              String         @id @default(uuid()) // Unique identifier  
-  name            String         @unique @db.VarChar(40) // Tour name  
+  id              String         @id @default(uuid())
+  name            String         @unique @db.VarChar(40)
   reviews         Review[]       @relation("TourReviews")
-  slug            String?        @unique // Optional slug for URL  
-  duration        Int // Required duration  
-  maxGroupSize    Int // Required max group size  
-  difficulty      Difficulty // Enum for difficulty levels  
-  ratingsAverage  Float          @default(4.5) // Default average rating  
-  ratingsQuantity Int            @default(0) // Default ratings count  
-  price           Float // Required price  
-  priceDiscount   Float? // Optional price discount (nullable)  
-  summary         String         @db.Text // Required summary  
-  description     String?        @db.Text // Optional description  
-  imageCover      String // Required cover image  
-  images          String[] // Array of images  
-  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamp(6) // Created time  
-  startDates      DateTime[] // Array of start dates  
-  secretTour      Boolean        @default(false) // Flag for secret tours  
-  guides          User[]         @relation("TourGuides") // Relation to User model for tour guides  
-  startLocation   StartLocation? // Optional relation to StartLocation  
-  locations       Location[] // Array of locations  
-
-  // @@map("tours") // Maps the model to the "tours" table in database  
+  order           Order[]        @relation("TourOrder")
+  slug            String?        @unique
+  duration        Int
+  maxGroupSize    Int
+  difficulty      Difficulty
+  ratingsAverage  Float          @default(4.5)
+  ratingsQuantity Int            @default(0)
+  price           Float
+  priceDiscount   Float?
+  summary         String         @db.Text
+  description     String?        @db.Text
+  imageCover      String
+  images          String[]
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  startDates      DateTime[]
+  secretTour      Boolean        @default(false)
+  guides          User[]         @relation("TourGuides")
+  startLocation   StartLocation?
+  locations       Location[]
 }
 
 model StartLocation {
-  id          String  @id @default(uuid()) // Unique identifier for start location  
-  description String // Description of the start location  
-  type        String // Type of location (e.g., "Point")  
-  coordinates Float[] // Array of coordinates [longitude, latitude]  
-  address     String // Full address of the start location  
-  tourId      String  @unique // Foreign key to Tour (ensuring one start location per tour)  
-  tour        Tour    @relation(fields: [tourId], references: [id]) // Relation to Tour  
+  id          String  @id @default(uuid()) 
+  description String   
+  type        String 
+  coordinates Float[]  
+  address     String 
+  tourId      String  @unique 
+  tour        Tour    @relation(fields: [tourId], references: [id]) 
 }
 
 model Location {
   id          String  @id @default(uuid())
-  tourId      String // Foreign key to connect with Tour   @unique @unique
-  type        String  @default("Point") @db.VarChar(5) // default to "Point"  
-  coordinates Float[] // array of numbers for coordinates  
+  tourId      String 
+  type        String  @default("Point") @db.VarChar(5) 
+  coordinates Float[] 
   address     String?
   description String?
   day         Int?
   tour        Tour    @relation(fields: [tourId], references: [id])
-
-  @@map("locations") // maps the model to the "locations" table in the database  
+  @@map("locations")   
 }
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  tourId    String
+  price     Int
+  count     Int
+  status    orderStatus @default(pending)
+  user      User        @relation("UserOrder", fields: [userId], references: [id])
+  tour      Tour        @relation("TourOrder", fields: [tourId], references: [id])
+  payment   Payment?
+  paymentId String?     @unique
+
+  @@unique([userId, tourId])
+}
+
+model Payment {
+  id        String @id @default(uuid())
+  code      Int
+  ref_id    Int
+  card_pan  String
+  card_hash String
+  fee_type  String
+  fee       Int
+  order     Order  @relation(fields: [orderId], references: [id])
+  orderId   String @unique
+}
+
 
 enum Difficulty {
   easy
@@ -111,6 +127,7 @@ enum Difficulty {
 enum orderStatus {
   pending
   paid
+  canceled
 }
 
 enum Role {

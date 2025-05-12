@@ -1,5 +1,6 @@
 import OrderQuery from '../repository/orderQuery';
 import TourQuery from '../repository/tourQuery';
+
 class OrderService {
   orderQuery;
   tourQuery;
@@ -9,20 +10,29 @@ class OrderService {
     this.tourQuery = new TourQuery();
   }
 
-  createOrder = async (tourid: string, userid: string) => {
-    const tour = await this.tourQuery.findTourById(tourid);
+  findOrderForUser = async (orderId: string) => {
+    const order = await this.orderQuery.findOrderById(orderId);
+    return order ? order : false;
+  };
+
+  sentTourPrice = async (tourId: string) => {
+    const tour = await this.tourQuery.findTourById(tourId);
+    const price = tour?.price;
+    return tour ? price : false;
+  };
+  createOrder = async (tourId:string,userId:string,count:number) => {
+    const tour = await this.tourQuery.findTourById(tourId);
+  
     if (tour) {
-      const order = await this.orderQuery.addOrderToUser(
-        userid,
-        tourid,
-      );
+      const price = count * tour.price
+      const data = {tourId,userId,price,count}
+      const order = await this.orderQuery.addOrder(data);
       return order ? order : false;
     }
   };
 
   getOrderbyUserId = async (userId: string) => {
     const orders = await this.orderQuery.findOrderByUserId(userId);
-
     return orders ? orders : false;
   };
 }

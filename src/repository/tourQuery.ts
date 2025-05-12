@@ -10,6 +10,7 @@ class TourQuery {
     this.prisma = this.repository.prisma
   }
 
+  
   createTour = async (data: Tour) => {
    
     const newTour = await this.repository.tour.create({

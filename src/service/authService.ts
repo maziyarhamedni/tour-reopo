@@ -100,10 +100,7 @@ class authService {
     return user;
   };
   passwordChengedAfterSetToken = async (jwtIat: any, passChenge: Date): Promise<Boolean> => {
-
     const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
-    console.log(` is pass change after setToken ${passChengeAt > jwtIat} `)
-
     return (passChengeAt > jwtIat);
   };
 

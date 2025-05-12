@@ -15,13 +15,25 @@ interface NewUser {
   isActive: boolean;
   order: Order[];
 }
+
+interface Order {
+  id?: string;
+  userId: string;
+  tourId: string;
+  price: Int;
+  count: Int;
+  status?: orderStatus;
+  paymentId?: string;
+}
 interface PaymentResponse {
-  data: {code: number;
-   message: string;
-   card_hash: string;
-   card_pan: string;
-   ref_id: number;}
- }
+  data: {
+    code: number;
+    message: string;
+    card_hash: string;
+    card_pan: string;
+    ref_id: number;
+  };
+}
 interface UserSafeInfo {
   id: string;
   name: string;

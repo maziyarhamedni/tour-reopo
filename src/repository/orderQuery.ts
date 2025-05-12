@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { PaymentResponse } from '../utils/express';
-import { connect } from 'http2';
 import { orderStatus } from '@prisma/client';
-
+import { Order } from '../utils/express';
 const prisma = new PrismaClient();
 
 class OrderQuery {
@@ -14,14 +12,17 @@ class OrderQuery {
     this.prisma = prisma;
   }
 
-  addOrderToUser = async (userid: string, tourid: string) => {
+  addOrder = async (data:Order) => {
+
+
     const order = await this.order.create({
       data: {
-        tourId: tourid,
-        userId: userid,
+        tourId: data.tourId,
+        userId: data.userId,
         status: orderStatus.pending,
+        price:data.price,
+        count:data.count
       },
-      
     });
 
     return order ? order : false;
@@ -35,6 +36,15 @@ class OrderQuery {
     });
 
     return orders ? orders : false;
+  };
+
+  findOrderById = async (orderId: string) => {
+    const order = await this.order.findUnique({
+      where: {
+        id: orderId,
+      },
+    });
+    return order || false;
   };
 }
 

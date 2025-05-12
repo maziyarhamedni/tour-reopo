@@ -7,10 +7,19 @@ const orderQuery_1 = __importDefault(require("../repository/orderQuery"));
 const tourQuery_1 = __importDefault(require("../repository/tourQuery"));
 class OrderService {
     constructor() {
+        this.findOrderForUser = async (orderId) => {
+            const order = await this.orderQuery.findOrderById(orderId);
+            return order ? order : false;
+        };
+        this.sentTourPrice = async (tourId) => {
+            const tour = await this.tourQuery.findTourById(tourId);
+            const price = tour === null || tour === void 0 ? void 0 : tour.price;
+            return tour ? price : false;
+        };
         this.createOrder = async (tourid, userid) => {
             const tour = await this.tourQuery.findTourById(tourid);
             if (tour) {
-                const order = await this.orderQuery.addOrderToUser(userid, tourid);
+                const order = await this.orderQuery.addOrder(userid, tourid);
                 return order ? order : false;
             }
         };
