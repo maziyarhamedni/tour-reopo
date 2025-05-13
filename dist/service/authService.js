@@ -72,7 +72,6 @@ class authService {
         };
         this.passwordChengedAfterSetToken = async (jwtIat, passChenge) => {
             const passChengeAt = parseInt(`${passChenge.getTime() / 1000}`, 10);
-            console.log(` is pass change after setToken ${passChengeAt > jwtIat} `);
             return (passChengeAt > jwtIat);
         };
         this.updatePasswordServiced = async (id, oldPassword, newPassword) => {

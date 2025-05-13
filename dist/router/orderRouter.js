@@ -13,8 +13,10 @@ orderRouter
     .route('/buy/:orderId')
     .post(authorize.protect, orderControl.redirectUserToPayment);
 orderRouter
+    .route('/checkPayment/:orderId').get(orderControl.checkPayment);
+orderRouter
     .route('/addtomyorder/:tourId')
-    .post(authorize.protect, orderControl.addTourToMyOrder);
+    .post(authorize.protect, orderControl.addToMyOrder);
 orderRouter
     .route('/myorder')
     .get(authorize.protect, orderControl.getOrderByUserId);

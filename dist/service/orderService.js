@@ -16,10 +16,12 @@ class OrderService {
             const price = tour === null || tour === void 0 ? void 0 : tour.price;
             return tour ? price : false;
         };
-        this.createOrder = async (tourid, userid) => {
-            const tour = await this.tourQuery.findTourById(tourid);
+        this.createOrder = async (tourId, userId, count) => {
+            const tour = await this.tourQuery.findTourById(tourId);
             if (tour) {
-                const order = await this.orderQuery.addOrder(userid, tourid);
+                const price = count * tour.price;
+                const data = { tourId, userId, price, count };
+                const order = await this.orderQuery.addOrder(data);
                 return order ? order : false;
             }
         };

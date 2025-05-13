@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import axios from 'axios';
 import OrderService from '../service/orderService';
-import { Order } from '../utils/express';
 class orderController {
   shenaseSite: string;
   paymentPrice: number;

@@ -5,12 +5,14 @@ const client_2 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 class OrderQuery {
     constructor() {
-        this.addOrder = async (userid, tourid) => {
+        this.addOrder = async (data) => {
             const order = await this.order.create({
                 data: {
-                    tourId: tourid,
-                    userId: userid,
+                    tourId: data.tourId,
+                    userId: data.userId,
                     status: client_2.orderStatus.pending,
+                    price: data.price,
+                    count: data.count
                 },
             });
             return order ? order : false;
