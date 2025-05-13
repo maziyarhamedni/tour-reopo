@@ -7,10 +7,6 @@ const orderQuery_1 = __importDefault(require("../repository/orderQuery"));
 const tourQuery_1 = __importDefault(require("../repository/tourQuery"));
 class OrderService {
     constructor() {
-        this.findOrderForUser = async (orderId) => {
-            const order = await this.orderQuery.findOrderById(orderId);
-            return order ? order : false;
-        };
         this.sentTourPrice = async (tourId) => {
             const tour = await this.tourQuery.findTourById(tourId);
             const price = tour === null || tour === void 0 ? void 0 : tour.price;
@@ -19,15 +15,19 @@ class OrderService {
         this.createOrder = async (tourId, userId, count) => {
             const tour = await this.tourQuery.findTourById(tourId);
             if (tour) {
-                const price = count * tour.price;
-                const data = { tourId, userId, price, count };
+                const finalPrice = count * tour.price;
+                const data = { tourId, userId, count, finalPrice };
                 const order = await this.orderQuery.addOrder(data);
-                return order ? order : false;
+                return order || false;
             }
+        };
+        this.getOrderById = async (orderId) => {
+            const orders = await this.orderQuery.findOrderById(orderId);
+            return orders || false;
         };
         this.getOrderbyUserId = async (userId) => {
             const orders = await this.orderQuery.findOrderByUserId(userId);
-            return orders ? orders : false;
+            return orders || false;
         };
         this.orderQuery = new orderQuery_1.default();
         this.tourQuery = new tourQuery_1.default();

@@ -2,13 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import axios from 'axios';
 import OrderService from '../service/orderService';
+import AppError from '../utils/AppError';
 class orderController {
   shenaseSite: string;
   paymentPrice: number;
   startPayUrl: string;
   service: OrderService;
   paymentUrl: string;
-  checkPaymentUrl;
+  checkPaymentUrl: string;
   constructor() {
     this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1!;
     this.startPayUrl = process.env.START_PAY2!;
@@ -21,18 +22,16 @@ class orderController {
   redirectUserToPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const orderId = req.params.orderId;
-      const { count } = req.body;
-      const order = await this.service.findOrderForUser(orderId);
+     
+      const order = await this.service.getOrderById(orderId);
       if (order) {
         const tourId = order.tourId;
         const price = await this.service.sentTourPrice(tourId);
 
         if (price) {
-          this.paymentPrice = count * price;
-
+          this.paymentPrice = order.finalPrice;
           const authority = await this.sendPaymentRequest(order.id);
           if (authority) {
-            console.log(authority);
             res.status(200).json({
               urlpay: `${this.startPayUrl}${authority}`,
             });
@@ -45,13 +44,21 @@ class orderController {
   checkPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const orderId = req.params.orderId;
-      const { Authority, Status } = req.query;
+      const order = await this.service.getOrderById(orderId);
+      if (!order) {
+        return next(new AppError('order not exists', 401));
+      }
+      const { Authority } = req.query;
+      const orderPrice = order.finalPrice
+
+      console.log(order, Authority);
       try {
         const response = await axios.post(
           this.checkPaymentUrl,
           {
             merchant_id: this.shenaseSite,
-            amount: this.paymentPrice,
+            amount: orderPrice,
+            authority: Authority,
           },
           {
             headers: {
@@ -60,22 +67,20 @@ class orderController {
             },
           }
         );
-  
-        const authority = (response.data as { data: { authority: string } }).data
-          .authority;
-  
-        return authority;
+
+        const data = await response.data;
+
+        console.log(data);
       } catch (error) {
-        const axiosError = error as { response?: { data: any }; message: string };
+        const axiosError = error as {
+          response?: { data: any };
+          message: string;
+        };
         console.error(
           'Error:',
           axiosError.response ? axiosError.response.data : axiosError.message
         );
       }
-
-      
-
-      console.log(Authority, Status, orderId);
     }
   );
 
@@ -95,9 +100,9 @@ class orderController {
   addToMyOrder = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = req.user.id;
-      const {count} = req.body
+      const { count } = req.body;
       const tourId = req.params.tourId;
-      const info = await this.service.createOrder(tourId, userId,count);
+      const info = await this.service.createOrder(tourId, userId, count);
       res.status(201).json({
         status: 'success',
         info,

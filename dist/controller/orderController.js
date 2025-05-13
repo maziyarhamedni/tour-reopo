@@ -6,20 +6,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const axios_1 = __importDefault(require("axios"));
 const orderService_1 = __importDefault(require("../service/orderService"));
+const AppError_1 = __importDefault(require("../utils/AppError"));
 class orderController {
     constructor() {
         this.redirectUserToPayment = (0, catchAsync_1.default)(async (req, res, next) => {
             const orderId = req.params.orderId;
-            const { count } = req.body;
-            const order = await this.service.findOrderForUser(orderId);
+            const order = await this.service.getOrderById(orderId);
             if (order) {
                 const tourId = order.tourId;
                 const price = await this.service.sentTourPrice(tourId);
                 if (price) {
-                    this.paymentPrice = count * price;
+                    this.paymentPrice = order.finalPrice;
                     const authority = await this.sendPaymentRequest(order.id);
                     if (authority) {
-                        console.log(authority);
                         res.status(200).json({
                             urlpay: `${this.startPayUrl}${authority}`,
                         });
@@ -29,26 +28,31 @@ class orderController {
         });
         this.checkPayment = (0, catchAsync_1.default)(async (req, res, next) => {
             const orderId = req.params.orderId;
-            const { Authority, Status } = req.query;
+            const order = await this.service.getOrderById(orderId);
+            if (!order) {
+                return next(new AppError_1.default('order not exists', 401));
+            }
+            const { Authority } = req.query;
+            const orderPrice = order.finalPrice;
+            console.log(order, Authority);
             try {
                 const response = await axios_1.default.post(this.checkPaymentUrl, {
                     merchant_id: this.shenaseSite,
-                    amount: this.paymentPrice,
+                    amount: orderPrice,
+                    authority: Authority,
                 }, {
                     headers: {
                         accept: 'application/json',
                         'content-type': 'application/json',
                     },
                 });
-                const authority = response.data.data
-                    .authority;
-                return authority;
+                const data = await response.data;
+                console.log(data);
             }
             catch (error) {
                 const axiosError = error;
                 console.error('Error:', axiosError.response ? axiosError.response.data : axiosError.message);
             }
-            console.log(Authority, Status, orderId);
         });
         this.getOrderByUserId = (0, catchAsync_1.default)(async (req, res, next) => {
             const userId = req.user.id;

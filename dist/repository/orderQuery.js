@@ -11,11 +11,11 @@ class OrderQuery {
                     tourId: data.tourId,
                     userId: data.userId,
                     status: client_2.orderStatus.pending,
-                    price: data.price,
+                    finalPrice: data.finalPrice,
                     count: data.count
                 },
             });
-            return order ? order : false;
+            return order || false;
         };
         this.findOrderByUserId = async (userid) => {
             const orders = await this.order.findMany({
@@ -23,7 +23,7 @@ class OrderQuery {
                     userId: userid,
                 },
             });
-            return orders ? orders : false;
+            return orders || false;
         };
         this.findOrderById = async (orderId) => {
             const order = await this.order.findUnique({

@@ -20,12 +20,12 @@ class OrderQuery {
         tourId: data.tourId,
         userId: data.userId,
         status: orderStatus.pending,
-        price:data.price,
+        finalPrice:data.finalPrice,
         count:data.count
       },
     });
 
-    return order ? order : false;
+    return order || false;
   };
 
   findOrderByUserId = async (userid: string) => {
@@ -35,15 +35,16 @@ class OrderQuery {
       },
     });
 
-    return orders ? orders : false;
+    return orders || false;
   };
 
-  findOrderById = async (orderId: string) => {
+  findOrderById = async (orderId: string)=> {
     const order = await this.order.findUnique({
       where: {
         id: orderId,
       },
     });
+
     return order || false;
   };
 }

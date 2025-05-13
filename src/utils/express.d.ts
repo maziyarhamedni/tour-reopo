@@ -20,7 +20,7 @@ interface Order {
   id?: string;
   userId: string;
   tourId: string;
-  price: Int;
+  finalPrice: Int;
   count: Int;
   status?: orderStatus;
   paymentId?: string;

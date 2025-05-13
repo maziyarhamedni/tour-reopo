@@ -89,7 +89,7 @@ model Order {
   id        String      @id @default(uuid())
   userId    String
   tourId    String
-  price     Int
+  finalPrice     Int
   count     Int
   status    orderStatus @default(pending)
   user      User        @relation("UserOrder", fields: [userId], references: [id])

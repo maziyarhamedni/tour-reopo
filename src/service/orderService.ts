@@ -10,11 +10,6 @@ class OrderService {
     this.tourQuery = new TourQuery();
   }
 
-  findOrderForUser = async (orderId: string) => {
-    const order = await this.orderQuery.findOrderById(orderId);
-    return order ? order : false;
-  };
-
   sentTourPrice = async (tourId: string) => {
     const tour = await this.tourQuery.findTourById(tourId);
     const price = tour?.price;
@@ -24,16 +19,21 @@ class OrderService {
     const tour = await this.tourQuery.findTourById(tourId);
   
     if (tour) {
-      const price = count * tour.price
-      const data = {tourId,userId,price,count}
+      const finalPrice = count * tour.price;
+      const data = {tourId,userId,count,finalPrice}
       const order = await this.orderQuery.addOrder(data);
-      return order ? order : false;
+      return order || false;
     }
   };
+  getOrderById = async(orderId:string)=>{
+
+    const orders = await this.orderQuery.findOrderById(orderId);
+    return orders || false;
+  }
 
   getOrderbyUserId = async (userId: string) => {
     const orders = await this.orderQuery.findOrderByUserId(userId);
-    return orders ? orders : false;
+    return orders || false;
   };
 }
 
