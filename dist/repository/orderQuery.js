@@ -25,6 +25,20 @@ class OrderQuery {
             });
             return orders || false;
         };
+        this.createTrx = async (data) => {
+            const trx = await this.prisma.payment.create({
+                data: {
+                    card_hash: data.card_hash,
+                    card_pan: data.card_pan,
+                    code: data.code,
+                    fee: data.fee,
+                    fee_type: data.fee_type,
+                    ref_id: data.ref_id,
+                    orderId: data.order_id,
+                }
+            });
+            return trx || false;
+        };
         this.findOrderById = async (orderId) => {
             const order = await this.order.findUnique({
                 where: {

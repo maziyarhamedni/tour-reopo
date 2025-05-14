@@ -25,6 +25,25 @@ interface Order {
   status?: orderStatus;
   paymentId?: string;
 }
+interface SuccessTrxData {
+  wages: null;
+  code: number;
+  message: string;
+  card_hash: string;
+  card_pan: string;
+  ref_id: number;
+  fee_type: string;
+  fee: number;
+  shaparak_fee: number;
+  order_id: string;
+}
+interface ZarinPalPayConnction {
+  merchant_id: string;
+  amount: number;
+  authority?: string;
+  callback_url?: string;
+  description?: string;
+}
 interface PaymentResponse {
   data: {
     code: number;

@@ -1,8 +1,7 @@
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x"] 
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -35,6 +34,7 @@ model Review {
   tourId    String
   user      User     @relation("UserReviews", fields: [userId], references: [id])
   tour      Tour     @relation("TourReviews", fields: [tourId], references: [id])
+
   @@unique([userId, tourId])
 }
 
@@ -64,38 +64,39 @@ model Tour {
 }
 
 model StartLocation {
-  id          String  @id @default(uuid()) 
-  description String   
-  type        String 
-  coordinates Float[]  
-  address     String 
-  tourId      String  @unique 
-  tour        Tour    @relation(fields: [tourId], references: [id]) 
+  id          String  @id @default(uuid())
+  description String
+  type        String
+  coordinates Float[]
+  address     String
+  tourId      String  @unique
+  tour        Tour    @relation(fields: [tourId], references: [id])
 }
 
 model Location {
   id          String  @id @default(uuid())
-  tourId      String 
-  type        String  @default("Point") @db.VarChar(5) 
-  coordinates Float[] 
+  tourId      String
+  type        String  @default("Point") @db.VarChar(5)
+  coordinates Float[]
   address     String?
   description String?
   day         Int?
   tour        Tour    @relation(fields: [tourId], references: [id])
-  @@map("locations")   
+
+  @@map("locations")
 }
 
 model Order {
-  id        String      @id @default(uuid())
-  userId    String
-  tourId    String
-  finalPrice     Int
-  count     Int
-  status    orderStatus @default(pending)
-  user      User        @relation("UserOrder", fields: [userId], references: [id])
-  tour      Tour        @relation("TourOrder", fields: [tourId], references: [id])
-  payment   Payment?
-  paymentId String?     @unique
+  id         String      @id @default(uuid())
+  userId     String
+  tourId     String
+  finalPrice Int
+  count      Int
+  status     orderStatus @default(pending)
+  user       User        @relation("UserOrder", fields: [userId], references: [id])
+  tour       Tour        @relation("TourOrder", fields: [tourId], references: [id])
+  payment    Payment?
+  paymentId  String?     @unique
 
   @@unique([userId, tourId])
 }
@@ -112,7 +113,6 @@ model Payment {
   orderId   String @unique
 }
 
-
 enum Difficulty {
   easy
   medium
@@ -124,6 +124,8 @@ enum orderStatus {
   paid
   canceled
 }
+
+
 
 enum Role {
   ADMIN

@@ -6,23 +6,23 @@ import AppError from '../utils/AppError';
 class orderController {
   shenaseSite: string;
   paymentPrice: number;
-  startPayUrl: string;
-  service: OrderService;
   paymentUrl: string;
   checkPaymentUrl: string;
+  service: OrderService;
+  startPayUrl: string;
   constructor() {
-    this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1!;
     this.startPayUrl = process.env.START_PAY2!;
-    this.checkPaymentUrl = process.env.CHECK_PAYMENT3!;
     this.paymentPrice = 0;
     this.service = new OrderService();
     this.shenaseSite = process.env.SITE_PAYMENT_ID!;
+    this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1!;
+    this.checkPaymentUrl = process.env.CHECK_PAYMENT3!;
   }
 
   redirectUserToPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const orderId = req.params.orderId;
-     
+
       const order = await this.service.getOrderById(orderId);
       if (order) {
         const tourId = order.tourId;
@@ -49,37 +49,45 @@ class orderController {
         return next(new AppError('order not exists', 401));
       }
       const { Authority } = req.query;
-      const orderPrice = order.finalPrice
-
-      console.log(order, Authority);
-      try {
-        const response = await axios.post(
+      let data;
+      if (typeof Authority == 'string') {
+        const response: any = await this.service.connctionWithZainPal(
           this.checkPaymentUrl,
           {
             merchant_id: this.shenaseSite,
-            amount: orderPrice,
+            amount: order.finalPrice,
             authority: Authority,
-          },
-          {
-            headers: {
-              accept: 'application/json',
-              'content-type': 'application/json',
-            },
           }
         );
+        data = await response.data;
+      }
 
-        const data = await response.data;
+      ///////////////                now i must add this to prisma
+      //////////////                  and seprate axios requsets sfe
+      /////////////                    and add trx to database to save
+      ////////////                      and user transaction on database
 
-        console.log(data);
-      } catch (error) {
-        const axiosError = error as {
-          response?: { data: any };
-          message: string;
-        };
-        console.error(
-          'Error:',
-          axiosError.response ? axiosError.response.data : axiosError.message
-        );
+      if (data.code == 100) {
+        data.order_id = orderId;
+        const trx = await this.service.createTrx(data);
+        console.log(trx);
+      } else if (data.code == 101) {
+        const order = await this.service.getOrderById(orderId);
+        if (order && order.status == 'pending') {
+          data.order_id = orderId;
+          const trx = await this.service.createTrx(data);
+          res.status(200).json({
+            status: 'success',
+            trx,
+          });
+        } else if (order && order.status == 'paid') {
+          const trx = await this.service.findTrxbyOrderId(orderId);
+
+          res.status(200).json({
+            status: 'success',
+            trx,
+          });
+        }
       }
     }
   );
@@ -111,34 +119,19 @@ class orderController {
   );
 
   sendPaymentRequest = async (orderId: string) => {
-    try {
-      const response = await axios.post(
-        this.paymentUrl,
-        {
-          merchant_id: this.shenaseSite,
-          amount: this.paymentPrice,
-          callback_url: `http://127.0.0.1:3000/api/v1/order/checkPayment/${orderId}`,
-          description: ` buy tour from site tour.com `,
-        },
-        {
-          headers: {
-            accept: 'application/json',
-            'content-type': 'application/json',
-          },
-        }
-      );
+    const response: any = await this.service.connctionWithZainPal(
+      this.paymentUrl,
+      {
+        merchant_id: this.shenaseSite,
+        amount: this.paymentPrice,
+        callback_url: `http://127.0.0.1:3000/api/v1/order/checkPayment/${orderId}`,
+        description: ` buy tour from site tour.com `,
+      }
+    );
 
-      const authority = (response.data as { data: { authority: string } }).data
-        .authority;
+    const authority = response.data.authority;
 
-      return authority;
-    } catch (error) {
-      const axiosError = error as { response?: { data: any }; message: string };
-      console.error(
-        'Error:',
-        axiosError.response ? axiosError.response.data : axiosError.message
-      );
-    }
+    return authority || false;
   };
 }
 
