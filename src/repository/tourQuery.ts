@@ -16,7 +16,6 @@ class TourQuery {
     const newTour = await this.repository.tour.create({
       data: {
         name: data.name,
-        // slug: data.slug,
         duration: data.duration,
         maxGroupSize: data.maxGroupSize,
         difficulty: data.difficulty,
@@ -38,16 +37,16 @@ class TourQuery {
   createStartLocation = async (data: StartLocation) => {
    
     const newStartLoc = await this.repository.tour.update({
-      where: { id: data.tourId }, // Specify the tour you want to update
+      where: { id: data.tourId }, 
       data: {
         startLocation: {
           connectOrCreate: {
             where: {
-              // Specify unique fields to find an existing location, if applicable
+              
               tourId: data.tourId,
             },
             create: {
-              // Create a new start location if it doesn't exist
+             
               description: data.description,
               type: data.type,
               coordinates: { set: data.coordinates },
@@ -176,7 +175,7 @@ class TourQuery {
     return guide;
   };
    
-  tourWhiten = async (radius: any, lat: any, lng: any) => {
+  // tourWhiten = async (radius: any, lat: any, lng: any) => {
     // const toursWithinRadiuds = await this.repository.startLocation.findMany({  
     //   where: {  
     //     // Using a raw filtering condition for geospatial query  
@@ -199,19 +198,19 @@ class TourQuery {
     //   },  
     // });  
 
-    const toursWithinRadius = await this.prisma.$queryRaw`  
-    SELECT sl.*, t.*  
-    FROM "StartLocation" sl  
-    JOIN "Tour" t ON sl."tourId" = t.id  
-    WHERE ST_DWithin(  
-      ST_MakePoint(${lng}, ${lat})::geography,  
-      ST_MakePoint(sl."coordinates"[0], sl."coordinates"[1])::geography,  
-      ${radius * 1000} 
-    );  
-  `;  
+  //   const toursWithinRadius = await this.prisma.$queryRaw`  
+  //   SELECT sl.*, t.*  
+  //   FROM "StartLocation" sl  
+  //   JOIN "Tour" t ON sl."tourId" = t.id  
+  //   WHERE ST_DWithin(  
+  //     ST_MakePoint(${lng}, ${lat})::geography,  
+  //     ST_MakePoint(sl."coordinates"[0], sl."coordinates"[1])::geography,  
+  //     ${radius * 1000} 
+  //   );  
+  // `;  
 
-    return toursWithinRadius;
-  };
+  //   return toursWithinRadius;
+  // };
 }
 
 export = TourQuery;
