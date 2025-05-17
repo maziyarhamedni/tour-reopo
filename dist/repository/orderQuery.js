@@ -12,7 +12,7 @@ class OrderQuery {
                     userId: data.userId,
                     status: client_2.orderStatus.pending,
                     finalPrice: data.finalPrice,
-                    count: data.count
+                    count: data.count,
                 },
             });
             return order || false;
@@ -25,8 +25,35 @@ class OrderQuery {
             });
             return orders || false;
         };
-        this.createTrx = async (data) => {
-            const trx = await this.prisma.payment.create({
+        this.transAction = async (orderId, data) => {
+            await this.prisma.$transaction(async (tx) => {
+                await this.updateOrderStatus(orderId, tx);
+                await this.createTrx(data, tx);
+            });
+        };
+        this.findTrxByOrderId = async (trxId) => {
+            const trx = await this.trx.findUnique({
+                where: {
+                    id: trxId,
+                },
+                include: {
+                    order: true,
+                },
+            });
+            return trx || false;
+        };
+        this.updateOrderStatus = async (orderId, tx) => {
+            await tx.order.update({
+                where: {
+                    id: orderId,
+                },
+                data: {
+                    status: 'paid',
+                },
+            });
+        };
+        this.createTrx = async (data, tx) => {
+            const trx = await tx.payment.create({
                 data: {
                     card_hash: data.card_hash,
                     card_pan: data.card_pan,
@@ -35,7 +62,7 @@ class OrderQuery {
                     fee_type: data.fee_type,
                     ref_id: data.ref_id,
                     orderId: data.order_id,
-                }
+                },
             });
             return trx || false;
         };
@@ -49,6 +76,7 @@ class OrderQuery {
         };
         this.order = prisma.order;
         this.prisma = prisma;
+        this.trx = prisma.payment;
     }
 }
 exports.default = OrderQuery;

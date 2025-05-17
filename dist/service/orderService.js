@@ -24,26 +24,22 @@ class OrderService {
                 return false;
             }
         };
-        this.updateOrderStatus = async (orderId) => {
-            const order = await this.orderQuery.findOrderById(orderId);
-            if (order) {
-                const res = await this.orderQuery.order.update({
-                    where: {
-                        id: order.id,
-                    },
-                    data: {
-                        status: 'paid',
-                    },
-                });
+        this.findTrxbyOrderId = async (orderId) => {
+            const trx = await this.orderQuery.findTrxByOrderId(orderId);
+            return trx || false;
+        };
+        this.checkCode101ZarinPal = async (data) => {
+            const order = await this.orderQuery.findOrderById(data.order_id);
+            if (order && order.status == 'paid') {
+                return order;
+            }
+            else if (order && order.status == 'pending') {
+                this.orderQuery.transAction(data.order_id, data);
             }
         };
         this.createTrx = async (data) => {
-            await this.updateOrderStatus(data.order_id);
-            const order = await this.orderQuery.findOrderById(data.order_id);
-            if (order && order.status == 'paid') {
-                const trx = await this.orderQuery.createTrx(data);
-                return trx || false;
-            }
+            await this.orderQuery.transAction(data.order_id, data);
+            console.log('trx is crate');
         };
         this.sentTourPrice = async (tourId) => {
             const tour = await this.tourQuery.findTourById(tourId);

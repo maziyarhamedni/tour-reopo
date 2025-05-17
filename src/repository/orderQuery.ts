@@ -2,8 +2,13 @@ import { PrismaClient } from '@prisma/client';
 import { orderStatus } from '@prisma/client';
 import { Order } from '../utils/express';
 import { SuccessTrxData } from '../utils/express';
-const prisma = new PrismaClient();
 
+type TransactionPrsma = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
+
+const prisma = new PrismaClient();
 class OrderQuery {
   order;
   trx;
@@ -16,7 +21,7 @@ class OrderQuery {
   }
 
   addOrder = async (data: Order) => {
-    const order = await this.order.create({
+    const order = await this.order.create({  
       data: {
         tourId: data.tourId,
         userId: data.userId,
@@ -25,7 +30,6 @@ class OrderQuery {
         count: data.count,
       },
     });
-
     return order || false;
   };
 
@@ -35,8 +39,14 @@ class OrderQuery {
         userId: userid,
       },
     });
-
     return orders || false;
+  };
+
+  transAction = async (orderId: string, data: SuccessTrxData) => {
+    await this.prisma.$transaction(async (tx: TransactionPrsma) => {
+      await this.updateOrderStatus(orderId, tx);
+      await this.createTrx(data, tx);
+    });
   };
 
   findTrxByOrderId = async (trxId: string) => {
@@ -52,8 +62,19 @@ class OrderQuery {
     return trx || false;
   };
 
-  createTrx = async (data: SuccessTrxData) => {
-    const trx = await this.trx.create({
+  updateOrderStatus = async (orderId: string, tx: TransactionPrsma) => {
+    await tx.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status: 'paid',
+      },
+    });
+  };
+
+  createTrx = async (data: SuccessTrxData, tx: TransactionPrsma) => {
+    const trx = await tx.payment.create({
       data: {
         card_hash: data.card_hash,
         card_pan: data.card_pan,
@@ -67,6 +88,7 @@ class OrderQuery {
 
     return trx || false;
   };
+
   findOrderById = async (orderId: string) => {
     const order = await this.order.findUnique({
       where: {

@@ -31,34 +31,25 @@ class OrderService {
     }
   };
 
-  updateOrderStatus = async (orderId: string) => {
-    const order = await this.orderQuery.findOrderById(orderId);
+  findTrxbyOrderId = async (orderId: string) => {
+    const trx = await this.orderQuery.findTrxByOrderId(orderId);
+    return trx || false;
+  };
 
-    if (order) {
-      const res = await this.orderQuery.order.update({
-        where: {
-          id: order.id,
-        },
-        data: {
-          status: 'paid',
-        },
-      });
+  checkCode101ZarinPal = async (data: SuccessTrxData) => {
+    const order = await this.orderQuery.findOrderById(data.order_id);
+
+    if (order && order.status == 'paid') {
+      return order;
+    } else if (order && order.status == 'pending') {
+      this.orderQuery.transAction(data.order_id, data);
     }
   };
 
-  findTrxbyOrderId = async  (orderId:string)=>{
-    const trx = await this.orderQuery.findTrxByOrderId(orderId)
-    return trx || false
-  }
-
   createTrx = async (data: SuccessTrxData) => {
-    await this.updateOrderStatus(data.order_id);
+    await this.orderQuery.transAction(data.order_id, data);
 
-    const order = await this.orderQuery.findOrderById(data.order_id);
-    if (order && order.status == 'paid') {
-      const trx = await this.orderQuery.createTrx(data);
-      return trx || false;
-    }
+    console.log('trx is crate');
   };
 
   sentTourPrice = async (tourId: string) => {

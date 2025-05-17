@@ -41,6 +41,13 @@ class orderController {
     }
   );
 
+  snedDatatoUser = (res: Response, StatusCode: number, data: any) => {
+    res.status(StatusCode).json({
+      status: 'success',
+      data,
+    });
+  };
+
   checkPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const orderId = req.params.orderId;
@@ -60,34 +67,15 @@ class orderController {
           }
         );
         data = await response.data;
+        data.order_id = orderId;
       }
 
-      ///////////////                now i must add this to prisma
-      //////////////                  and seprate axios requsets sfe
-      /////////////                    and add trx to database to save
-      ////////////                      and user transaction on database
-
       if (data.code == 100) {
-        data.order_id = orderId;
         const trx = await this.service.createTrx(data);
-        console.log(trx);
+        this.snedDatatoUser(res, 200, trx);
       } else if (data.code == 101) {
-        const order = await this.service.getOrderById(orderId);
-        if (order && order.status == 'pending') {
-          data.order_id = orderId;
-          const trx = await this.service.createTrx(data);
-          res.status(200).json({
-            status: 'success',
-            trx,
-          });
-        } else if (order && order.status == 'paid') {
-          const trx = await this.service.findTrxbyOrderId(orderId);
-
-          res.status(200).json({
-            status: 'success',
-            trx,
-          });
-        }
+        const result = await this.service.checkCode101ZarinPal(data);
+        this.snedDatatoUser(res, 200, result);
       }
     }
   );

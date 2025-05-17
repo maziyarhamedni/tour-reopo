@@ -25,6 +25,12 @@ class orderController {
                 }
             }
         });
+        this.snedDatatoUser = (res, StatusCode, data) => {
+            res.status(StatusCode).json({
+                status: 'success',
+                data,
+            });
+        };
         this.checkPayment = (0, catchAsync_1.default)(async (req, res, next) => {
             const orderId = req.params.orderId;
             const order = await this.service.getOrderById(orderId);
@@ -32,26 +38,23 @@ class orderController {
                 return next(new AppError_1.default('order not exists', 401));
             }
             const { Authority } = req.query;
-            const orderPrice = order.finalPrice;
             let data;
             if (typeof Authority == 'string') {
                 const response = await this.service.connctionWithZainPal(this.checkPaymentUrl, {
                     merchant_id: this.shenaseSite,
-                    amount: orderPrice,
+                    amount: order.finalPrice,
                     authority: Authority,
                 });
                 data = await response.data;
-            }
-            ///////////////                now i must add this to prisma
-            //////////////                  and seprate axios requsets sfe
-            /////////////                    and add trx to database to save
-            ////////////                      and user transaction on database
-            if (data.code == 100) {
                 data.order_id = orderId;
+            }
+            if (data.code == 100) {
                 const trx = await this.service.createTrx(data);
-                console.log(trx);
+                this.snedDatatoUser(res, 200, trx);
             }
             else if (data.code == 101) {
+                const result = await this.service.checkCode101ZarinPal(data);
+                this.snedDatatoUser(res, 200, result);
             }
         });
         this.getOrderByUserId = (0, catchAsync_1.default)(async (req, res, next) => {
