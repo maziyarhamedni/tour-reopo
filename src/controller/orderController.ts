@@ -10,9 +10,11 @@ class orderController {
   checkPaymentUrl: string;
   service: OrderService;
   startPayUrl: string;
+  callbackUrl:string
   constructor() {
     this.startPayUrl = process.env.START_PAY2!;
     this.paymentPrice = 0;
+    this.callbackUrl= process.env.CALLBACK_URL_WITHOUT_ORDERID!
     this.service = new OrderService();
     this.shenaseSite = process.env.SITE_PAYMENT_ID!;
     this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1!;
@@ -22,7 +24,6 @@ class orderController {
   redirectUserToPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const orderId = req.params.orderId;
-
       const order = await this.service.getOrderById(orderId);
       if (order) {
         const tourId = order.tourId;
@@ -112,7 +113,7 @@ class orderController {
       {
         merchant_id: this.shenaseSite,
         amount: this.paymentPrice,
-        callback_url: `http://127.0.0.1:3000/api/v1/order/checkPayment/${orderId}`,
+        callback_url: `${this.callbackUrl}${orderId}`,
         description: ` buy tour from site tour.com `,
       }
     );

@@ -10,7 +10,7 @@ import {
 import authService from '../service/authService';
 
 
-class authController {
+class authController { 
   secret: string;
   cookieExpire: number;
   service;
@@ -128,6 +128,8 @@ class authController {
   isLoggedIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       if (req.cookies.jwt) {
+
+
         try {
           const decode: Payload = await this.service.jwtVerifyPromisified(
             req.cookies.jwt,
@@ -225,8 +227,6 @@ class authController {
       const userWithOrder = {
         ...result,
         order: [],
-        expiredTime: new Date(),
-        resetPassword: '',
       };
       this.createJwtToken(userWithOrder, 200, res);
     }

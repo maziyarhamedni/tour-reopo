@@ -11,6 +11,13 @@ import cookiePrser from 'cookie-parser'
 import path from 'path';
 import orderRouter from './router/orderRouter';
 
+
+
+
+
+
+
+
 const app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '..', 'views'));
