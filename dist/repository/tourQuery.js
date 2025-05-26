@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const repository_1 = __importDefault(require("./repository"));
-class TourQuery {
+class TourQuery extends repository_1.default {
     constructor() {
+        super();
         this.createTour = async (data) => {
-            const newTour = await this.repository.tour.create({
+            const newTour = await this.tour.create({
                 data: {
                     name: data.name,
                     duration: data.duration,
@@ -27,7 +28,7 @@ class TourQuery {
             return newTour;
         };
         this.createStartLocation = async (data) => {
-            const newStartLoc = await this.repository.tour.update({
+            const newStartLoc = await this.tour.update({
                 where: { id: data.tourId },
                 data: {
                     startLocation: {
@@ -48,7 +49,7 @@ class TourQuery {
             return newStartLoc;
         };
         this.createLocation = async (data) => {
-            const newLocation = await this.repository.tour.update({
+            const newLocation = await this.tour.update({
                 where: { id: data.tourId },
                 data: {
                     locations: {
@@ -65,7 +66,7 @@ class TourQuery {
             return newLocation;
         };
         this.findTourById = async (id) => {
-            const tour = await this.repository.tour.findUnique({
+            const tour = await this.tour.findUnique({
                 where: {
                     id: id,
                 },
@@ -90,7 +91,7 @@ class TourQuery {
             return tour;
         };
         this.findTourByName = async (name) => {
-            const tour = await this.repository.tour.findUnique({
+            const tour = await this.tour.findUnique({
                 where: {
                     name: name
                 },
@@ -113,7 +114,7 @@ class TourQuery {
             return tour;
         };
         this.getAllTour = async () => {
-            const tours = await this.repository.tour.findMany({
+            const tours = await this.tour.findMany({
                 include: {
                     startLocation: true,
                     guides: true,
@@ -123,7 +124,7 @@ class TourQuery {
             return tours;
         };
         this.updateTour = async (id, data) => {
-            await this.repository.tour.update({
+            await this.tour.update({
                 where: { id: id },
                 data,
             });
@@ -131,14 +132,14 @@ class TourQuery {
             return updateTour;
         };
         this.deleteTour = async (id) => {
-            await this.repository.tour.delete({
+            await this.tour.delete({
                 where: {
                     id: id,
                 },
             });
         };
         this.addTourGuide = async (tourId, userIds) => {
-            const guide = await this.repository.tour.update({
+            const guide = await this.tour.update({
                 where: {
                     id: tourId,
                 },
@@ -150,8 +151,6 @@ class TourQuery {
             });
             return guide;
         };
-        this.repository = new repository_1.default();
-        this.prisma = this.repository.prisma;
     }
 }
 module.exports = TourQuery;

@@ -61,6 +61,7 @@ class authService {
       return { resetToken, user };
     }
   };
+  
 
   updateMe = async (
     email: string,

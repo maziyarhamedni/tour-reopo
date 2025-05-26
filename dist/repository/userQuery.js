@@ -8,14 +8,15 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const client_1 = require("@prisma/client");
 const redisClient_1 = __importDefault(require("./redisClient"));
-class UserQuery {
+class UserQuery extends repository_1.default {
     constructor() {
+        super();
         this.hashPassword = async (input) => {
             return await bcryptjs_1.default.hash(input, 10);
         };
         this.CreateNewUser = async (userInfo) => {
             const pass = await this.hashPassword(userInfo.password);
-            const newUser = await this.repository.user.create({
+            const newUser = await this.user.create({
                 data: {
                     name: userInfo.name,
                     email: userInfo.email,
@@ -26,14 +27,14 @@ class UserQuery {
                     isActive: true,
                     photo: userInfo.photo,
                     orders: {
-                        create: []
-                    }
+                        create: [],
+                    },
                 },
             });
             return newUser;
         };
         this.findUserByEmail = async (email) => {
-            const user = await this.repository.user.findUnique({
+            const user = await this.user.findUnique({
                 where: {
                     email: email,
                     isActive: true,
@@ -42,7 +43,7 @@ class UserQuery {
             return user;
         };
         this.findUserById = async (id) => {
-            const user = await this.repository.user.findUnique({
+            const user = await this.user.findUnique({
                 where: {
                     id: id,
                     isActive: true,
@@ -51,16 +52,16 @@ class UserQuery {
             return user;
         };
         this.getAllUser = async () => {
-            const allUser = await this.repository.user.findMany({
+            const allUser = await this.user.findMany({
                 omit: {
                     password: true,
                     passwordChengeAt: true,
-                }
+                },
             });
             return allUser ? allUser : false;
         };
         this.updateUser = async (userEmail, data) => {
-            await this.repository.user.update({
+            await this.user.update({
                 where: {
                     email: userEmail,
                     isActive: true,
@@ -71,7 +72,7 @@ class UserQuery {
         this.saveResetTokenOnRedis = async (userId, token) => {
             const tokenExprition = 600;
             try {
-                await redisClient_1.default.setex(userId, tokenExprition, token);
+                await this.redis.setex(userId, tokenExprition, token);
                 console.log('Token saved successfully');
             }
             catch (err) {
@@ -79,7 +80,7 @@ class UserQuery {
             }
         };
         this.isTokenMatchWithRedis = async (token, id) => {
-            const savedToken = await redisClient_1.default.get(id);
+            const savedToken = await this.redis.get(id);
             if (!savedToken || savedToken != token) {
                 return false;
             }
@@ -93,9 +94,7 @@ class UserQuery {
                 return resetToken;
             }
         };
-        const repository = new repository_1.default();
-        this.redis = redisClient_1.default;
-        this.repository = repository.prisma;
+        this.redis = redisClient_1.default.getInstance();
     }
 }
 exports.default = UserQuery;

@@ -3,13 +3,13 @@ import bcryptjs from 'bcryptjs';
 import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
-import redis from './redisClient';
+import RedisSingleton from './redisClient';
 class UserQuery extends Repository {
   redis;
 
   constructor() {
     super();
-    this.redis = redis;
+    this.redis = RedisSingleton.getInstance();
   }
   hashPassword = async (input: string) => {
     return await bcryptjs.hash(input, 10);
@@ -80,7 +80,7 @@ class UserQuery extends Repository {
     const tokenExprition = 600;
 
     try {
-      await redis.setex(userId, tokenExprition, token);
+      await this.redis.setex(userId, tokenExprition, token);
       console.log('Token saved successfully');
     } catch (err) {
       console.error('Error saving token:', err);
@@ -88,7 +88,7 @@ class UserQuery extends Repository {
   };
 
   isTokenMatchWithRedis = async (token: string, id: string) => {
-    const savedToken = await redis.get(id);
+    const savedToken = await this.redis.get(id);
     if (!savedToken || savedToken != token) {
       return false;
     }

@@ -10,7 +10,7 @@ import {
 import authService from '../service/authService';
 
 
-class authController { 
+class authController  { 
   secret: string;
   cookieExpire: number;
   service;

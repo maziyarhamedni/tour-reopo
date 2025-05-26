@@ -4,10 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const repository_1 = __importDefault(require("./repository"));
-class ReviewQuery {
+class ReviewQuery extends repository_1.default {
     constructor() {
+        super();
         this.findReviewById = async (id) => {
-            const review = await this.model.review.findUnique({
+            const review = await this.review.findUnique({
                 where: {
                     id: id,
                 },
@@ -15,7 +16,7 @@ class ReviewQuery {
             return review ? review : false;
         };
         this.createReview = async (data) => {
-            const review = await this.model.review.create({
+            const review = await this.review.create({
                 data: {
                     review: data.review,
                     createdAt: new Date(),
@@ -24,13 +25,13 @@ class ReviewQuery {
                     rating: data.rating,
                 },
             });
-            const aggregateData = await this.model.review.aggregate({
+            const aggregateData = await this.review.aggregate({
                 _avg: { rating: true },
                 where: {
                     tourId: data.tourId,
                 },
             });
-            await this.model.tour.update({
+            await this.tour.update({
                 where: { id: data.tourId },
                 data: {
                     ratingsAverage: aggregateData._avg.rating,
@@ -39,7 +40,7 @@ class ReviewQuery {
             return review;
         };
         this.updateReview = async (id, data) => {
-            await this.model.review.update({
+            await this.review.update({
                 where: {
                     id: id,
                 },
@@ -47,7 +48,7 @@ class ReviewQuery {
             });
         };
         this.getAllReview = async (tourId) => {
-            const allReviews = await this.model.tour.findUnique({
+            const allReviews = await this.tour.findUnique({
                 where: {
                     id: tourId,
                 },
@@ -87,7 +88,7 @@ class ReviewQuery {
             return allReviews ? allReviews : false;
         };
         this.getAllReviewByTourId = async (tourId) => {
-            const reviews = await this.model.review.findMany({
+            const reviews = await this.review.findMany({
                 where: {
                     tourId: tourId,
                 },
@@ -98,14 +99,13 @@ class ReviewQuery {
             return reviews;
         };
         this.deleteReview = async (id) => {
-            await this.model.review.delete({
+            await this.review.delete({
                 where: {
                     id: id,
                 },
             });
             return true;
         };
-        this.model = new repository_1.default();
     }
 }
 exports.default = ReviewQuery;
