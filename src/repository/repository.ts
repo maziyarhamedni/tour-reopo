@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-class Repository {
+abstract class Repository {
   review;
   tour;
   user;

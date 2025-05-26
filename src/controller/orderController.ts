@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
-import axios from 'axios';
 import OrderService from '../service/orderService';
 import AppError from '../utils/AppError';
 class orderController {
@@ -10,16 +9,19 @@ class orderController {
   checkPaymentUrl: string;
   service: OrderService;
   startPayUrl: string;
-  callbackUrl:string
+  callbackUrl: string;
   constructor() {
     this.startPayUrl = process.env.START_PAY2!;
     this.paymentPrice = 0;
-    this.callbackUrl= process.env.CALLBACK_URL_WITHOUT_ORDERID!
+    this.callbackUrl = process.env.CALLBACK_URL_WITHOUT_ORDERID!;
     this.service = new OrderService();
     this.shenaseSite = process.env.SITE_PAYMENT_ID!;
     this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1!;
     this.checkPaymentUrl = process.env.CHECK_PAYMENT3!;
   }
+  snedDatatoUser = (res: Response, StatusCode: number, data: any) => {
+    res.status(StatusCode).json({ status: 'success', data });
+  };
 
   redirectUserToPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -41,13 +43,6 @@ class orderController {
       }
     }
   );
-
-  snedDatatoUser = (res: Response, StatusCode: number, data: any) => {
-    res.status(StatusCode).json({
-      status: 'success',
-      data,
-    });
-  };
 
   checkPayment = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {

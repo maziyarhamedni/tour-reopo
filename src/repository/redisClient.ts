@@ -1,13 +1,10 @@
-// src/index.ts  
-import Redis from 'ioredis';  
+// src/index.ts
+import Redis from 'ioredis';
 
 
-const redis = new Redis({  
-  host: 'localhost', 
-  port: 6379,        
-  
-});  
-
-
+const redis = new Redis({
+  host: 'localhost',
+  port: 6379,
+});
 
 export default redis;

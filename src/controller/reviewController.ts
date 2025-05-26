@@ -32,7 +32,7 @@ class reviewController {
         return next(new AppError('you cant delete other review', 404));
       }
 
-      this.sendResponse(204, 'review is delete', res, review);
+      this.sendResponse(204, 'review is delete', res, 'reveiw deleted');
     }
   );
 
@@ -74,7 +74,7 @@ class reviewController {
       const id = req.params.id;
       const review = await this.service.getOne(id);
       if (!review) {
-        return next(new AppError('there isnot review with this is', 404));
+        return next(new AppError('there isnot review with this id', 404));
       }
       this.sendResponse(200, 'seccessful', res, review);
     }

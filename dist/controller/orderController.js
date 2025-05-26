@@ -8,6 +8,9 @@ const orderService_1 = __importDefault(require("../service/orderService"));
 const AppError_1 = __importDefault(require("../utils/AppError"));
 class orderController {
     constructor() {
+        this.snedDatatoUser = (res, StatusCode, data) => {
+            res.status(StatusCode).json({ status: 'success', data });
+        };
         this.redirectUserToPayment = (0, catchAsync_1.default)(async (req, res, next) => {
             const orderId = req.params.orderId;
             const order = await this.service.getOrderById(orderId);
@@ -25,12 +28,6 @@ class orderController {
                 }
             }
         });
-        this.snedDatatoUser = (res, StatusCode, data) => {
-            res.status(StatusCode).json({
-                status: 'success',
-                data,
-            });
-        };
         this.checkPayment = (0, catchAsync_1.default)(async (req, res, next) => {
             const orderId = req.params.orderId;
             const order = await this.service.getOrderById(orderId);
@@ -81,7 +78,7 @@ class orderController {
             const response = await this.service.connctionWithZainPal(this.paymentUrl, {
                 merchant_id: this.shenaseSite,
                 amount: this.paymentPrice,
-                callback_url: `http://127.0.0.1:3000/api/v1/order/checkPayment/${orderId}`,
+                callback_url: `${this.callbackUrl}${orderId}`,
                 description: ` buy tour from site tour.com `,
             });
             const authority = response.data.authority;
@@ -89,6 +86,7 @@ class orderController {
         };
         this.startPayUrl = process.env.START_PAY2;
         this.paymentPrice = 0;
+        this.callbackUrl = process.env.CALLBACK_URL_WITHOUT_ORDERID;
         this.service = new orderService_1.default();
         this.shenaseSite = process.env.SITE_PAYMENT_ID;
         this.paymentUrl = process.env.PAYMENT_URL_CONNECTON1;

@@ -25,10 +25,10 @@ class OrderQuery {
             });
             return orders || false;
         };
-        this.transAction = async (orderId, data) => {
+        this.transAction = async (orderId, data, updateOrderStatus, createTrx) => {
             await this.prisma.$transaction(async (tx) => {
-                await this.updateOrderStatus(orderId, tx);
-                await this.createTrx(data, tx);
+                await updateOrderStatus(orderId, tx);
+                await createTrx(data, tx);
             });
         };
         this.findTrxByOrderId = async (trxId) => {

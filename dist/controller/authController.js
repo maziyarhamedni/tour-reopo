@@ -124,7 +124,7 @@ class authController {
             if (!result) {
                 return next(new AppError_1.default('user not found ', 404));
             }
-            const userWithOrder = Object.assign(Object.assign({}, result), { order: [], expiredTime: new Date(), resetPassword: '' });
+            const userWithOrder = Object.assign(Object.assign({}, result), { order: [] });
             this.createJwtToken(userWithOrder, 200, res);
         });
         this.accessRoleIs = (...roles) => {

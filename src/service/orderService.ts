@@ -42,12 +42,22 @@ class OrderService {
     if (order && order.status == 'paid') {
       return order;
     } else if (order && order.status == 'pending') {
-      this.orderQuery.transAction(data.order_id, data);
+      this.orderQuery.transAction(
+        data.order_id,
+        data,
+        this.orderQuery.updateOrderStatus,
+        this.orderQuery.createTrx
+      );
     }
   };
 
   createTrx = async (data: SuccessTrxData) => {
-    await this.orderQuery.transAction(data.order_id, data);
+    await this.orderQuery.transAction(
+      data.order_id,
+      data,
+      this.orderQuery.updateOrderStatus,
+      this.orderQuery.createTrx
+    );
 
     console.log('trx is crate');
   };

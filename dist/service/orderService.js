@@ -34,11 +34,11 @@ class OrderService {
                 return order;
             }
             else if (order && order.status == 'pending') {
-                this.orderQuery.transAction(data.order_id, data);
+                this.orderQuery.transAction(data.order_id, data, this.orderQuery.updateOrderStatus, this.orderQuery.createTrx);
             }
         };
         this.createTrx = async (data) => {
-            await this.orderQuery.transAction(data.order_id, data);
+            await this.orderQuery.transAction(data.order_id, data, this.orderQuery.updateOrderStatus, this.orderQuery.createTrx);
             console.log('trx is crate');
         };
         this.sentTourPrice = async (tourId) => {

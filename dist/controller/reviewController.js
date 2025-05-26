@@ -26,7 +26,7 @@ class reviewController {
             if (!review) {
                 return next(new AppError_1.default('you cant delete other review', 404));
             }
-            this.sendResponse(204, 'review is delete', res, review);
+            this.sendResponse(204, 'review is delete', res, 'reveiw deleted');
         });
         this.updateOne = (0, catchAsync_1.default)(async (req, res, next) => {
             const data = req.body;
@@ -50,7 +50,7 @@ class reviewController {
             const id = req.params.id;
             const review = await this.service.getOne(id);
             if (!review) {
-                return next(new AppError_1.default('there isnot review with this is', 404));
+                return next(new AppError_1.default('there isnot review with this id', 404));
             }
             this.sendResponse(200, 'seccessful', res, review);
         });

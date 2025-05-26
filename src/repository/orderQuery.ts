@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { orderStatus } from '@prisma/client';
 import { Order } from '../utils/express';
 import { SuccessTrxData } from '../utils/express';
+import Repository from './repository';
 
 type TransactionPrsma = Omit<
   PrismaClient,
@@ -9,12 +10,13 @@ type TransactionPrsma = Omit<
 >;
 
 const prisma = new PrismaClient();
-class OrderQuery {
+class OrderQuery extends Repository {
   order;
   trx;
   prisma;
 
   constructor() {
+    super();
     this.order = prisma.order;
     this.prisma = prisma;
     this.trx = prisma.payment;
@@ -42,10 +44,10 @@ class OrderQuery {
     return orders || false;
   };
 
-  transAction = async (orderId: string, data: SuccessTrxData) => {
+  transAction = async (orderId: string, data: SuccessTrxData,updateOrderStatus:Function,createTrx:Function) => {
     await this.prisma.$transaction(async (tx: TransactionPrsma) => {
-      await this.updateOrderStatus(orderId, tx);
-      await this.createTrx(data, tx);
+      await updateOrderStatus(orderId, tx);
+      await createTrx(data, tx);
     });
   };
 

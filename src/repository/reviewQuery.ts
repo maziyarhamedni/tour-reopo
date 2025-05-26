@@ -1,14 +1,14 @@
 import Repository from './repository';
 import { ReviewField } from '../utils/express';
-class ReviewQuery {
-  model: Repository;
+class ReviewQuery extends Repository {
+ 
 
   constructor() {
-    this.model = new Repository();
+    super()
   }
 
   findReviewById = async (id: string) => {
-    const review = await this.model.review.findUnique({
+    const review = await this.review.findUnique({
       where: {
         id: id,
       },
@@ -16,7 +16,8 @@ class ReviewQuery {
     return review ? review : false;
   };
   createReview = async (data: ReviewField) => {
-    const review = await this.model.review.create({
+    
+    const review = await this.review.create({
       data: {
         review: data.review,
         createdAt: new Date(),
@@ -26,14 +27,14 @@ class ReviewQuery {
       },
     });
 
-    const aggregateData = await this.model.review.aggregate({
+    const aggregateData = await this.review.aggregate({
       _avg: { rating: true },
       where: {
         tourId: data.tourId,
       },
     });
 
-    await this.model.tour.update({
+    await this.tour.update({
       where: { id: data.tourId },
       data: {
         ratingsAverage: aggregateData._avg.rating!,
@@ -43,7 +44,7 @@ class ReviewQuery {
   };
 
   updateReview = async (id: string, data: any) => {
-    await this.model.review.update({
+    await this.review.update({
       where: {
         id: id,
       },
@@ -52,7 +53,7 @@ class ReviewQuery {
   };
 
   getAllReview = async (tourId: string) => {
-    const allReviews = await this.model.tour.findUnique({
+    const allReviews = await this.tour.findUnique({
       where: {
         id: tourId,
       },
@@ -96,7 +97,7 @@ class ReviewQuery {
   };
 
   getAllReviewByTourId = async (tourId: string) => {
-    const reviews = await this.model.review.findMany({
+    const reviews = await this.review.findMany({
       where: {
         tourId: tourId,
       },
@@ -108,7 +109,7 @@ class ReviewQuery {
     return reviews;
   };
   deleteReview = async (id: string) => {
-    await this.model.review.delete({
+    await this.review.delete({
       where: {
         id: id,
       },

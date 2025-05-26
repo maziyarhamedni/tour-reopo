@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import TourQuery from '../repository/tourQuery';
 const AppError_1 = __importDefault(require("../utils/AppError"));
 const tourService_1 = __importDefault(require("../service/tourService"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
@@ -41,12 +40,13 @@ class TourController {
             }
             res.status(200).json(updateTour);
         });
+        //// write delete tour 
         this.deleteTour = (0, catchAsync_1.default)(async (req, res, next) => {
             const id = req.params.id;
             if (!id) {
                 return next(new AppError_1.default('please inter id of tour', 404));
             }
-            res.status(204).send(`tour with id ${id}deleted `);
+            res.status(204).send(`tour is deleted `);
         });
         this.addStartLoc = (0, catchAsync_1.default)(async (req, res, next) => {
             const id = req.params.id;
@@ -68,29 +68,6 @@ class TourController {
             }
             res.status(201).json(newLoc);
         });
-        // tourWhitn = catchAsync(
-        //   async (req: Request, res: Response, next: NextFunction) => {
-        //     const { distance, latlng, unit } = req.params;
-        //     const [lat, lng] = latlng.split(',');
-        //     if (!lat || !lng) {
-        //       next(
-        //         new AppError(
-        //           'please provide latiutr and logitude in th format lat,len',
-        //           400
-        //         )
-        //       );
-        //     }
-        //     const disNum = Number(distance);
-        //     const newLat = Number(lat);
-        //     const newLng = Number(lng);
-        //     const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
-        //     const tours = await this.query.tourWhiten(radius, newLat, newLng);
-        //     res.status(200).json({
-        //       status: 'success',
-        //       tours
-        //     });
-        //   }
-        // );
         this.addTourGuides = (0, catchAsync_1.default)(async (req, res, next) => {
             const id = req.params.id;
             const guides = req.body.guides;
@@ -104,7 +81,3 @@ class TourController {
     }
 }
 exports.default = TourController;
-////////
-// https://sandbox.zarinpal.com/pg/v4/payment/request.json
-// https://sandbox.zarinpal.com/pg/v4/payment/verify.json
-// https://sandbox.zarinpal.com/pg/StartPay/

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-// import TourQuery from '../repository/tourQuery';
 import AppError from '../utils/AppError';
 import TourService from '../service/tourService';
 import catchAsync from '../utils/catchAsync';
@@ -54,13 +53,17 @@ class TourController {
     }
   );
 
+
+//// write delete tour 
+
+
   deleteTour = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
       if (!id) {
         return next(new AppError('please inter id of tour', 404));
       }
-      res.status(204).send(`tour with id ${id}deleted `);
+      res.status(204).send(`tour is deleted `);
     }
   );
 
@@ -94,32 +97,7 @@ class TourController {
     }
   );
 
-  // tourWhitn = catchAsync(
-  //   async (req: Request, res: Response, next: NextFunction) => {
-  //     const { distance, latlng, unit } = req.params;
 
-  //     const [lat, lng] = latlng.split(',');
-  //     if (!lat || !lng) {
-  //       next(
-  //         new AppError(
-  //           'please provide latiutr and logitude in th format lat,len',
-  //           400
-  //         )
-  //       );
-  //     }
-
-  //     const disNum = Number(distance);
-  //     const newLat = Number(lat);
-  //     const newLng = Number(lng);
-  //     const radius = unit == 'mi' ? disNum / 3963.2 : disNum / 6378.1;
-  //     const tours = await this.query.tourWhiten(radius, newLat, newLng);
-
-  //     res.status(200).json({
-  //       status: 'success',
-  //       tours
-  //     });
-  //   }
-  // );
   addTourGuides = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.params.id;
@@ -135,15 +113,6 @@ class TourController {
 }
 
 export default TourController;
-////////
-
-
-
-
-// https://sandbox.zarinpal.com/pg/v4/payment/request.json
-// https://sandbox.zarinpal.com/pg/v4/payment/verify.json
-// https://sandbox.zarinpal.com/pg/StartPay/
-
 
 
 

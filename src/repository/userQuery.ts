@@ -4,15 +4,12 @@ import { NewUser } from './../utils/express';
 import crypto from 'crypto';
 import { Role } from '@prisma/client';
 import redis from './redisClient';
-import { runInThisContext } from 'vm';
-class UserQuery {
-  repository;
+class UserQuery extends Repository {
   redis;
 
   constructor() {
-    const repository = new Repository();
+    super();
     this.redis = redis;
-    this.repository = repository.prisma;
   }
   hashPassword = async (input: string) => {
     return await bcryptjs.hash(input, 10);
@@ -20,7 +17,7 @@ class UserQuery {
 
   CreateNewUser = async (userInfo: NewUser) => {
     const pass = await this.hashPassword(userInfo.password);
-    const newUser = await this.repository.user.create({
+    const newUser = await this.user.create({
       data: {
         name: userInfo.name,
         email: userInfo.email,
@@ -31,8 +28,8 @@ class UserQuery {
         isActive: true,
         photo: userInfo.photo,
         orders: {
-          create: []
-        }
+          create: [],
+        },
       },
     });
 
@@ -40,7 +37,7 @@ class UserQuery {
   };
 
   findUserByEmail = async (email: string) => {
-    const user = await this.repository.user.findUnique({
+    const user = await this.user.findUnique({
       where: {
         email: email,
         isActive: true,
@@ -51,7 +48,7 @@ class UserQuery {
   };
 
   findUserById = async (id: any) => {
-    const user = await this.repository.user.findUnique({
+    const user = await this.user.findUnique({
       where: {
         id: id,
         isActive: true,
@@ -61,24 +58,22 @@ class UserQuery {
   };
 
   getAllUser = async () => {
-    const allUser = await this.repository.user.findMany({
-     omit:{
-        password:true,
-        passwordChengeAt:true,
-      
-      }
+    const allUser = await this.user.findMany({
+      omit: {
+        password: true,
+        passwordChengeAt: true,
+      },
     });
     return allUser ? allUser : false;
   };
   updateUser = async (userEmail: string, data: {}) => {
-      await this.repository.user.update({
+    await this.user.update({
       where: {
         email: userEmail,
         isActive: true,
       },
       data,
     });
-    
   };
 
   saveResetTokenOnRedis = async (userId: string, token: string) => {
